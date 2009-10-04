@@ -35,7 +35,7 @@ public class NaimonFrame extends JFrame {
 	 */
 	private void createMenuBar() {
 		JMenuBar menubar = new JMenuBar();
-		JMenu menu1 = new JMenu("ƒtƒ@ƒCƒ‹");
+		JMenu menu1 = new JMenu("File");
 		JMenuItem newitem = new JMenuItem("New");
 		newitem.addActionListener(new ActionListener() {
 			@Override
