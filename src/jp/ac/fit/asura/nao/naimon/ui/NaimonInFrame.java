@@ -11,21 +11,21 @@ import java.util.Random;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 
+import jp.ac.fit.asura.nao.naimon.event.NaimonEventListener;
+
 /**
  * @author kilo
  *
  */
-public class NaimonInFrame extends JInternalFrame {
+public abstract class NaimonInFrame extends JInternalFrame implements NaimonEventListener {
 
-	public NaimonInFrame(int n) {
+	public NaimonInFrame() {
 		this.setSize(new Dimension(200, 150));
-		JLabel label = new JLabel("ì‡ïîÉtÉåÅ[ÉÄ" + n);
-		label.setFont(new Font("Serif", Font.BOLD, 18));
-		label.setForeground(new Color(new Random().nextInt()));
-		this.add(label);
 		this.setClosable(true);
 		this.setResizable(true);
 		this.setIconifiable(true);
 		this.setMaximizable(true);
 	}
+	
+	abstract public String getName();
 }

@@ -7,6 +7,9 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
@@ -20,14 +23,40 @@ import javax.swing.JMenuItem;
  */
 public class NaimonFrame extends JFrame {
 	private JDesktopPane desktop;
-	private int counter;
+	private LinkedHashSet<NaimonInFrame> frames;
+	
 	
 	public NaimonFrame() {
-		counter = 0;
+		frames = new LinkedHashSet<NaimonInFrame>();
+		frames.clear();
+		
 		this.setSize(new Dimension(400, 300));
 		desktop = new JDesktopPane();
 		this.add(desktop, BorderLayout.CENTER);
-		this.createMenuBar();
+		
+		// ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’ç™»éŒ²
+		registerFrames();
+		
+		// ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã‚’ä½œæˆ
+		createMenuBar();
+		
+		// ãƒ•ãƒ¬ãƒ¼ãƒ è¡¨ç¤º
+		showFrames();
+	}
+	
+	/**
+	 * 
+	 */
+	private void registerFrames() {
+		frames.add(new VisionFrame());
+		
+	}
+	
+	/**
+	 * 
+	 */
+	private void showFrames() {
+		
 	}
 	
 	/**
@@ -57,10 +86,12 @@ public class NaimonFrame extends JFrame {
 	}
 	
 	public void createInFrame() {
-		NaimonInFrame frame = new NaimonInFrame(++counter);
+		/*
+		NaimonInFrame frame = new NaimonInFrame();
 		desktop.add(frame);
 		frame.setVisible(true);
-		// ’Ç‰Á‚µ‚½ƒtƒŒ[ƒ€‚ğƒAƒNƒeƒBƒu‚É‚·‚é
+		// ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ã‚’ã‚ã‚ã›ã‚‹
 		desktop.getDesktopManager().activateFrame(frame);
+		*/
 	}
 }
