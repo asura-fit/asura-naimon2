@@ -55,8 +55,8 @@ final class NaimonConfig {
 	}
 
 	private void setDefault() {
-		this.conf.setProperty("window.width", "320");
-		this.conf.setProperty("window.height", "240");
+		this.conf.setProperty("naimon.window.width", "320");
+		this.conf.setProperty("naimon.window.height", "240");
 		this.conf.setProperty("connect.last.host", "localhost");
 		this.conf.setProperty("connect.last.port", "8080");
 	}
@@ -67,6 +67,8 @@ final class NaimonConfig {
 			return Integer.parseInt(value);
 		}
 		log.config("key:" + key + " use default value.");
+		this.conf.setProperty(key, String.valueOf(defaultValue));
+		save();
 		return defaultValue;
 	}
 
@@ -76,6 +78,8 @@ final class NaimonConfig {
 			return value;
 		}
 		log.config("key:" + key + " use default value.");
+		this.conf.setProperty(key, defaultValue);
+		save();
 		return defaultValue;
 	}
 

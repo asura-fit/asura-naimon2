@@ -1,20 +1,21 @@
 package jp.ac.fit.asura.nao.naimon.ui;
 
-public class VisionFrame extends NaimonInFrame {
+public class TestFrame extends NaimonInFrame {
 
-	public VisionFrame() {
-		setTitle(this.getName());
+	public TestFrame() {
+		this.setTitle(this.getName());
 	}
 	
 	@Override
 	public String getName() {
-		return "Vision";
+		// TODO 自動生成されたメソッド・スタブ
+		return "Test Frame";
 	}
 
 	@Override
 	public void update() {
 		// TODO 自動生成されたメソッド・スタブ
-		
+
 	}
 
 }
