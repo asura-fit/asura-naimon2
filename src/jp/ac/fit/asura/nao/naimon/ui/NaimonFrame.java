@@ -5,6 +5,9 @@ package jp.ac.fit.asura.nao.naimon.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
@@ -12,13 +15,20 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JButton;
 import javax.swing.JDesktopPane;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
+
+import jp.ac.fit.asura.nao.naimon.NaimonConnector;
 
 /**
  * @author kilo
@@ -28,21 +38,23 @@ public class NaimonFrame extends JFrame {
 	private JDesktopPane desktop;
 	private LinkedHashSet<NaimonInFrame> frames;
 	
+	private NaimonConnector connector = null;
 	
 	public NaimonFrame() {
+		connector = new NaimonConnector();
+		
 		frames = new LinkedHashSet<NaimonInFrame>();
 		frames.clear();
 		
-		this.setSize(new Dimension(400, 300));
 		desktop = new JDesktopPane();
 		this.add(desktop, BorderLayout.CENTER);
 		
 		// フレームを登録
 		registerFrames();
-		
+		// setConnector
+		setConnector();
 		// メニュー項目を作成
 		createMenuBar();
-		
 		// フレーム表示
 		showFrames();
 	}
@@ -58,6 +70,12 @@ public class NaimonFrame extends JFrame {
 			desktop.add(f);
 			f.setVisible(true);
 			desktop.getDesktopManager().activateFrame(f);
+		}
+	}
+	
+	private void setConnector() {
+		for (NaimonInFrame f : frames) {
+			f.setConnector(connector);
 		}
 	}
 	
@@ -78,7 +96,8 @@ public class NaimonFrame extends JFrame {
 		newitem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				createInFrame();
+				//connector.connect("192.168.1.1", "8080");
+				showConnectDialog();
 			}
 		});
 		JMenuItem quititem = new JMenuItem("終了");
@@ -133,5 +152,24 @@ public class NaimonFrame extends JFrame {
 		// フォーカスをあわせる
 		desktop.getDesktopManager().activateFrame(frame);
 		*/
+	}
+	
+	private void showConnectDialog() {
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridLayout(2, 1));
+		
+		JPanel p = new JPanel();
+		p.add(new JTextField("ip"));
+		p.add(new JTextField("port"));
+		panel.add(p);
+		p = new JPanel();
+		p.add(new JButton("接続"));
+		p.add(new JButton("キャンセル"));
+		panel.add(p);
+		
+		JDialog dialog = new JDialog(this, "新規接続", true);
+		dialog.add(panel);
+		dialog.pack();
+		dialog.setVisible(true);
 	}
 }

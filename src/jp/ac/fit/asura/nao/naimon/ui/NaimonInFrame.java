@@ -11,6 +11,7 @@ import java.util.Random;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 
+import jp.ac.fit.asura.nao.naimon.NaimonConnector;
 import jp.ac.fit.asura.nao.naimon.event.NaimonEventListener;
 
 /**
@@ -19,6 +20,8 @@ import jp.ac.fit.asura.nao.naimon.event.NaimonEventListener;
  */
 public abstract class NaimonInFrame extends JInternalFrame implements NaimonEventListener {
 
+	protected NaimonConnector connector;
+	
 	public NaimonInFrame() {
 		this.setSize(new Dimension(200, 150));
 		this.setClosable(false);
@@ -30,4 +33,9 @@ public abstract class NaimonInFrame extends JInternalFrame implements NaimonEven
 	}
 	
 	abstract public String getName();
+	
+	public void setConnector(NaimonConnector connector) {
+		this.connector = connector;
+		connector.addUpdateListener(this);
+	}
 }
