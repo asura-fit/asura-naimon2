@@ -24,6 +24,8 @@ public class NaimonConnector implements Runnable {
 	
 	private Thread cThread;
 	
+	private boolean connected = false;
+	
 	public NaimonConnector() {
 		listenerList = new EventListenerList();
 		cThread = new Thread(this);
@@ -31,20 +33,23 @@ public class NaimonConnector implements Runnable {
 		host = conf.get("naimon.connect.last.host", "localhost");
 		port = conf.get("naimon.connect.last.port", "8080");
 		
+		cThread.start();
 	}
 	
 	public void connect(String host, String port) {
+		if (connected) {
+			disconnect();
+		}
 		this.host = host;
 		this.port = port;
-		conf.set("naimon.connect.last.host", host);
-		conf.set("naimon.connect.last.port", port);
 		
-		if (!cThread.isAlive())
-			cThread.start();
+		log.info("connect to " + host + ":" + port);
+		connected = true;
 	}
 	
 	public void disconnect() {
-		
+		log.info(host + ":" + port + " disconnected.");
+		connected = false;
 	}
 	
 	public synchronized void addUpdateListener(NaimonEventListener listener) {
@@ -53,10 +58,14 @@ public class NaimonConnector implements Runnable {
 
 	@Override
 	public void run() {
+		log.fine("thread start");
 		
 		while(true) {
-			System.out.println("connect to " + host + ":" + port);
-			fire();
+			
+			if (connected) {
+				System.out.print(".");
+				fire();
+			}
 			
 			try {
 				Thread.sleep(500);

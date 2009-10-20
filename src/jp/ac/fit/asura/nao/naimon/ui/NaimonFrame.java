@@ -14,12 +14,16 @@ import java.beans.PropertyVetoException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDesktopPane;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -28,6 +32,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
 
+import jp.ac.fit.asura.nao.naimon.NaimonConfig;
 import jp.ac.fit.asura.nao.naimon.NaimonConnector;
 
 /**
@@ -35,6 +40,9 @@ import jp.ac.fit.asura.nao.naimon.NaimonConnector;
  *
  */
 public class NaimonFrame extends JFrame {
+	private static final Logger log = Logger.getLogger(NaimonConnector.class.toString());
+	private static final NaimonConfig conf = NaimonConfig.getInstance();
+	
 	private JDesktopPane desktop;
 	private LinkedHashSet<NaimonInFrame> frames;
 	
@@ -155,20 +163,63 @@ public class NaimonFrame extends JFrame {
 	}
 	
 	private void showConnectDialog() {
+		final JDialog dialog = new JDialog(this, "新規接続", true);
 		JPanel panel = new JPanel();
 		panel.setLayout(new GridLayout(2, 1));
 		
+		String str;
+		str = conf.get("naimon.connect.hosts", "localhost");
+		str = conf.get("naimon.connect.last.host", "localhost") + ";" + str;
+		String[] hosts = str.split(";");
+		str = conf.get("naimon.connect.ports", "8080");
+		str = conf.get("naimon.connect.last.port", "8080") + ";" + str;
+		String[] ports = str.split(";");
+		
 		JPanel p = new JPanel();
-		p.add(new JTextField("ip"));
-		p.add(new JTextField("port"));
-		panel.add(p);
-		p = new JPanel();
-		p.add(new JButton("接続"));
-		p.add(new JButton("キャンセル"));
+		
+		final JComboBox hostCombo = new JComboBox(hosts);
+		final JComboBox portCombo = new JComboBox(ports);
+		hostCombo.setEditable(true);
+		portCombo.setEditable(true);
+		
+		p.add(new JLabel("ホスト"));
+		p.add(hostCombo);
+		p.add(new JLabel("ポート"));
+		p.add(portCombo);
 		panel.add(p);
 		
-		JDialog dialog = new JDialog(this, "新規接続", true);
+		p = new JPanel();
+		JButton btn = new JButton("接続");
+		btn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String host = (String)hostCombo.getSelectedItem();
+				String port = (String)portCombo.getSelectedItem();
+				if (!Pattern.compile("^[0-9a-z]+(.[0-9a-z]+)*").matcher(host).matches() ||
+						!Pattern.compile("^[0-9]+").matcher(port).matches()) {
+					log.warning("Invalid hostname : " + host + ", port : " + port);
+				} else {
+				// 
+				conf.set("naimon.connect.last.host", host);
+				conf.set("naimon.connect.last.port", port);
+				connector.connect(host, port);
+				}
+				dialog.dispose();
+			}
+		});
+		p.add(btn);
+		btn = new JButton("キャンセル");
+		btn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dialog.dispose();	
+			}
+		});
+		p.add(btn);
+		panel.add(p);
+		
 		dialog.add(panel);
+		
 		dialog.pack();
 		dialog.setVisible(true);
 	}

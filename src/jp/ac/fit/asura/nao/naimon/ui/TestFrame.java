@@ -19,7 +19,7 @@ public class TestFrame extends NaimonInFrame {
 	@Override
 	public void update() {
 		// TODO 自動生成されたメソッド・スタブ
-		System.out.println("message updated.");
+		// System.out.println("message updated.");
 	}
 
 }

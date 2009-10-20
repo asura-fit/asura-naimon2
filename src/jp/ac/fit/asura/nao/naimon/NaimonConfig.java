@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  * @author kilo
  * 
  */
-final class NaimonConfig {
+final public class NaimonConfig {
 	private static final Logger log = Logger.getLogger(NaimonConfig.class
 			.toString());
 	private static final NaimonConfig instance = new NaimonConfig();
