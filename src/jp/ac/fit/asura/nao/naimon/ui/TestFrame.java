@@ -2,6 +2,10 @@ package jp.ac.fit.asura.nao.naimon.ui;
 
 import java.util.logging.Logger;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 import jp.ac.fit.asura.nao.naimon.Main;
 
 public class TestFrame extends NaimonInFrame {
@@ -17,9 +21,18 @@ public class TestFrame extends NaimonInFrame {
 	}
 
 	@Override
-	public void update() {
-		// TODO 自動生成されたメソッド・スタブ
-		// System.out.println("message updated.");
+	public void update(Document document) {
+		NodeList gcdNode = document.getElementsByTagName("GCD");
+		Element gcd = (Element)gcdNode.item(0);
+		int width = Integer.parseInt(gcd.getAttribute("width"));
+		int height = Integer.parseInt(gcd.getAttribute("height"));
+		String gdata = gcd.getTextContent();
+		
+		/*
+		System.out.println("width:" + width);
+		System.out.println("height:" + height);
+		System.out.println("gdata:" + gdata);
+		*/
 	}
 
 }

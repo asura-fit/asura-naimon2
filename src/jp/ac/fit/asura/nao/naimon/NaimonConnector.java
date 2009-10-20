@@ -3,9 +3,19 @@
  */
 package jp.ac.fit.asura.nao.naimon;
 
+import java.io.IOException;
+import java.net.SocketException;
 import java.util.logging.Logger;
 
 import javax.swing.event.EventListenerList;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import jp.ac.fit.asura.nao.naimon.event.NaimonEventListener;
 
@@ -16,6 +26,8 @@ import jp.ac.fit.asura.nao.naimon.event.NaimonEventListener;
 public class NaimonConnector implements Runnable {
 	private static final Logger log = Logger.getLogger(NaimonConnector.class.toString());
 	private static final NaimonConfig conf = NaimonConfig.getInstance();
+	
+	private static final String NAIMON_PREFIX = "/naimon2";
 	
 	private String host;
 	private String port;
@@ -63,12 +75,39 @@ public class NaimonConnector implements Runnable {
 		while(true) {
 			
 			if (connected) {
+				DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+				DocumentBuilder builder = null;
+				Document document = null;
+				try {
+					builder = dbf.newDocumentBuilder();
+				} catch (ParserConfigurationException e) {
+					e.printStackTrace();
+					disconnect();
+					continue;
+				}
+				try {
+					document = builder.parse("http://" + host + ":" + port + NAIMON_PREFIX);
+				} catch (SAXException e) {
+					e.printStackTrace();
+					disconnect();
+					continue;
+				} catch (SocketException e) {
+					log.warning("接続できませんでした。接続先が正しくないかもしれません。");
+					disconnect();
+					continue;
+				} catch (IOException e) {
+					e.printStackTrace();
+					disconnect();
+					continue;
+				}
+				
 				System.out.print(".");
-				fire();
+				
+				fire(document);
 			}
 			
 			try {
-				Thread.sleep(500);
+				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -76,9 +115,9 @@ public class NaimonConnector implements Runnable {
 		
 	}
 	
-	private void fire() {
+	private void fire(Document doc) {
 		for (NaimonEventListener listener : listenerList.getListeners(NaimonEventListener.class)) {
-			listener.update();
+			listener.update((Document)doc.cloneNode(true));
 		}
 	}
 }

@@ -23,7 +23,7 @@ public abstract class NaimonInFrame extends JInternalFrame implements NaimonEven
 	protected NaimonConnector connector;
 	
 	public NaimonInFrame() {
-		this.setSize(new Dimension(200, 150));
+		this.setSize(new Dimension(320, 240));
 		this.setClosable(false);
 		this.setResizable(true);
 		this.setIconifiable(true);

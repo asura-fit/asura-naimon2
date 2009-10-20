@@ -4,16 +4,11 @@
 package jp.ac.fit.asura.nao.naimon.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
 import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -22,15 +17,11 @@ import javax.swing.JComboBox;
 import javax.swing.JDesktopPane;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
 
 import jp.ac.fit.asura.nao.naimon.NaimonConfig;
 import jp.ac.fit.asura.nao.naimon.NaimonConnector;
@@ -49,11 +40,11 @@ public class NaimonFrame extends JFrame {
 	private NaimonConnector connector = null;
 	
 	public NaimonFrame() {
-		connector = new NaimonConnector();
+		setTitle("Naimon");
 		
+		connector = new NaimonConnector();
 		frames = new LinkedHashSet<NaimonInFrame>();
 		frames.clear();
-		
 		desktop = new JDesktopPane();
 		this.add(desktop, BorderLayout.CENTER);
 		
@@ -64,7 +55,7 @@ public class NaimonFrame extends JFrame {
 		// メニュー項目を作成
 		createMenuBar();
 		// フレーム表示
-		showFrames();
+		//showFrames();
 	}
 	
 	/**
@@ -77,7 +68,6 @@ public class NaimonFrame extends JFrame {
 		for (NaimonInFrame f : frames) {
 			desktop.add(f);
 			f.setVisible(true);
-			desktop.getDesktopManager().activateFrame(f);
 		}
 	}
 	
@@ -91,7 +81,9 @@ public class NaimonFrame extends JFrame {
 	 * 
 	 */
 	private void showFrames() {
-		
+		for (NaimonInFrame f : frames) {
+			
+		}
 	}
 	
 	/**
@@ -99,28 +91,37 @@ public class NaimonFrame extends JFrame {
 	 */
 	private void createMenuBar() {
 		JMenuBar menubar = new JMenuBar();
-		JMenu menu1 = new JMenu("ファイル");
-		JMenuItem newitem = new JMenuItem("新規");
-		newitem.addActionListener(new ActionListener() {
+		
+		JMenu fileMenu = new JMenu("ファイル");
+		JMenuItem newItem = new JMenuItem("新しい接続");
+		newItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//connector.connect("192.168.1.1", "8080");
 				showConnectDialog();
 			}
 		});
-		JMenuItem quititem = new JMenuItem("終了");
-		quititem.addActionListener(new ActionListener() {
+		JMenuItem closeItem = new JMenuItem("接続を閉じる");
+		closeItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				connector.disconnect();	
+			}
+		});
+		JMenuItem quitItem = new JMenuItem("終了");
+		quitItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);	
 			}
 		});
-		menu1.add(newitem);
-		menu1.add(quititem);
-		menubar.add(menu1);
+		
+		fileMenu.add(newItem);
+		fileMenu.add(closeItem);
+		fileMenu.addSeparator();
+		fileMenu.add(quitItem);
 		
 		// frame menu
-		JMenu frameMenu = new JMenu("表示");
+		JMenu windowMenu = new JMenu("ウィンドウ");
 		for (final NaimonInFrame f : frames) {
 			JMenuItem item = new JMenuItem(f.getName());
 			item.addActionListener(new ActionListener() {
@@ -141,25 +142,13 @@ public class NaimonFrame extends JFrame {
 					}
 				}
 			});
-			frameMenu.add(item);
+			windowMenu.add(item);
 		}
-		menubar.add(frameMenu);
+		
+		menubar.add(fileMenu);
+		menubar.add(windowMenu);
 		
 		this.setJMenuBar(menubar);
-	}
-	
-	public void performeFrame(String name) {
-		
-	}
-	
-	public void createInFrame() {
-		/*
-		NaimonInFrame frame = new NaimonInFrame();
-		desktop.add(frame);
-		frame.setVisible(true);
-		// フォーカスをあわせる
-		desktop.getDesktopManager().activateFrame(frame);
-		*/
 	}
 	
 	private void showConnectDialog() {

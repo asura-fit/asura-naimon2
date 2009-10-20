@@ -29,9 +29,8 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		log.info("Naimon 2");
-		NaimonConfig conf = NaimonConfig.getInstance();
 		init();
+		log.info("Naimon started.");
 	}
 	
 	private static void init() {
