@@ -62,11 +62,23 @@ public class VisionFrame extends NaimonInFrame {
 		ByteArrayInputStream bin = new ByteArrayInputStream(Base64.decode(gdata));
 		InflaterInputStream iin = new InflaterInputStream(bin);
 		byte[] p = new byte[length];
+		
 		try {
-			iin.read(p);
+			int count = 0;
+			while (true) {
+				int ret = iin.read(p, count, p.length - count);
+				if (ret <= 0 || ret == p.length) {
+					break;
+				} else {
+					count += ret;
+				}
+			}
+			iin.close();
 		} catch (IOException e) {
+			// TODO 自動生成された catch ブロック
 			e.printStackTrace();
 		}
+
 		/*
 		NodeList blobs = document.getElementsByTagName("Blobs");
 		for (int i = 0; i < blobs.getLength(); i++) {
@@ -79,6 +91,7 @@ public class VisionFrame extends NaimonInFrame {
 			}
 		}
 		*/
+		
 		updateImage(width, height, p);
 	}
 	
@@ -89,9 +102,12 @@ public class VisionFrame extends NaimonInFrame {
 			g.setColor(Color.GRAY);
 			g.fillRect(0, 0, getWidth(), getHeight());
 			
-			int x = (getWidth() - image.getWidth()) / 2;
-			int y = (getHeight() - image.getHeight()) / 2;
-			g.drawImage(image, x, y, Color.BLACK, null);
+			double n = (double)image.getHeight() / image.getWidth();
+			int idrawWidth = (int)(getWidth() * 0.7); // 70%
+			int idrawHeight = (int)(idrawWidth * n);
+			int x = (getWidth() - idrawWidth) / 2;
+			int y = (getHeight() - idrawHeight) / 2;
+			g.drawImage(image, x, y, idrawWidth, idrawHeight, Color.BLACK, null);
 		}
 		
 	}
