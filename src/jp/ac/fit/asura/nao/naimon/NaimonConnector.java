@@ -91,18 +91,22 @@ public class NaimonConnector implements Runnable {
 					e.printStackTrace();
 					disconnect();
 					continue;
+				} catch (IllegalArgumentException e) {
+					log.warning("接続できませんでした。接続先の指定がおかしいかもです。");
+					disconnect();
+					continue;
 				} catch (SocketException e) {
 					log.warning("接続できませんでした。接続先が正しくないかもしれません。");
 					disconnect();
 					continue;
 				} catch (IOException e) {
 					e.printStackTrace();
+					log.warning("データを取得できませんでした。入出力エラーです。");
 					disconnect();
 					continue;
 				}
 				
-				System.out.print(".");
-				
+				//System.out.println(".");
 				fire(document);
 			}
 			

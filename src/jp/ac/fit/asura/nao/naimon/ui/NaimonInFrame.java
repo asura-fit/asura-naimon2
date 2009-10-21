@@ -3,13 +3,9 @@
  */
 package jp.ac.fit.asura.nao.naimon.ui;
 
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.util.Random;
 
 import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
 
 import jp.ac.fit.asura.nao.naimon.NaimonConnector;
 import jp.ac.fit.asura.nao.naimon.event.NaimonEventListener;

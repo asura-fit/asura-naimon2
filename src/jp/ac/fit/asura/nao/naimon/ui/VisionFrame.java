@@ -67,7 +67,18 @@ public class VisionFrame extends NaimonInFrame {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+		/*
+		NodeList blobs = document.getElementsByTagName("Blobs");
+		for (int i = 0; i < blobs.getLength(); i++) {
+			NodeList blob = (NodeList)blobs.item(i);
+			Element be = (Element)blob;
+			System.out.println("index: " + be.getAttribute("colorIndex"));
+			for (int j = 0; j < blob.getLength(); j++) {
+				Element e = (Element)blob.item(j);
+				System.out.println("xmax: " + e.getAttribute("xmax"));
+			}
+		}
+		*/
 		updateImage(width, height, p);
 	}
 	
