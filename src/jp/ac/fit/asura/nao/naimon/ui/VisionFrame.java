@@ -3,6 +3,7 @@ package jp.ac.fit.asura.nao.naimon.ui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.ByteArrayInputStream;
@@ -19,29 +20,21 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 public class VisionFrame extends NaimonInFrame {
 
-	private BufferedImage image;
+	private BufferedImage gcdImage = null;
+	private BufferedImage blobImage = null;
+	
 	private ImagePanel imagePanel;
 	
 	public VisionFrame() {
-		init();
+		init(160, 120);
 		imagePanel = new ImagePanel();
 		add(imagePanel);
 	}
 	
-	private void init() {
-		image = new BufferedImage(160, 120, BufferedImage.TYPE_INT_RGB);
-		setPreferredSize(new Dimension());
-		setTitle(this.getName() + " " + image.getWidth() + "x" + image.getHeight());
-	}
-	
-	private void updateImage(int width, int height, byte[] plane) {
-		if (image.getWidth() != width || image.getHeight() != height) {
-			image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-			setTitle(this.getName() + " " + image.getWidth() + "x" + image.getHeight());
-		}
-		int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
-		GCD.gcd2rgb(plane, pixels);
-		imagePanel.repaint();
+	private void init(int width, int height) {
+		gcdImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		blobImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		setTitle(this.getName() + " " + width + "x" + height);
 	}
 	
 	@Override
@@ -61,13 +54,13 @@ public class VisionFrame extends NaimonInFrame {
 		// Base64をでコード後、展開する
 		ByteArrayInputStream bin = new ByteArrayInputStream(Base64.decode(gdata));
 		InflaterInputStream iin = new InflaterInputStream(bin);
-		byte[] p = new byte[length];
+		byte[] gcdPlane = new byte[length];
 		
 		try {
 			int count = 0;
 			while (true) {
-				int ret = iin.read(p, count, p.length - count);
-				if (ret <= 0 || ret == p.length) {
+				int ret = iin.read(gcdPlane, count, gcdPlane.length - count);
+				if (ret <= 0 || ret == gcdPlane.length) {
 					break;
 				} else {
 					count += ret;
@@ -75,24 +68,58 @@ public class VisionFrame extends NaimonInFrame {
 			}
 			iin.close();
 		} catch (IOException e) {
-			// TODO 自動生成された catch ブロック
 			e.printStackTrace();
 		}
 
-		/*
-		NodeList blobs = document.getElementsByTagName("Blobs");
-		for (int i = 0; i < blobs.getLength(); i++) {
-			NodeList blob = (NodeList)blobs.item(i);
-			Element be = (Element)blob;
-			System.out.println("index: " + be.getAttribute("colorIndex"));
-			for (int j = 0; j < blob.getLength(); j++) {
-				Element e = (Element)blob.item(j);
-				System.out.println("xmax: " + e.getAttribute("xmax"));
-			}
-		}
-		*/
+		// 使用するBufferedImageを初期化する
+		init(width, height);
+		int[] pixels = ((DataBufferInt) gcdImage.getRaster().getDataBuffer()).getData();
+		// gcdPlaneをgcdImageに反映
+		GCD.gcd2rgb(gcdPlane, pixels);
 		
-		updateImage(width, height, p);
+		
+		synchronized (blobImage) {
+			Graphics2D g = blobImage.createGraphics();
+			g.setBackground(new Color(0, 0, 0, 0));
+			g.clearRect(0, 0, width, height);
+			
+			NodeList blobs = document.getElementsByTagName("Blobs");
+			for (int i = 0; i < blobs.getLength(); i++) {
+				NodeList blob = (NodeList)blobs.item(i);
+				Element be = (Element)blob;
+				int index = Integer.parseInt(be.getAttribute("colorIndex"));
+				g.setColor(getColorWithIndex(index));
+				for (int j = 0; j < blob.getLength(); j++) {
+					Element e = (Element)blob.item(j);
+					int x =  Integer.parseInt(e.getAttribute("xmin"));
+					int y =  Integer.parseInt(e.getAttribute("ymin"));
+					int x2 = Integer.parseInt(e.getAttribute("xmax"));
+					int y2 = Integer.parseInt(e.getAttribute("ymax"));
+					g.drawRect(x, y, x2 - x, y2 - y);
+				}
+			}
+			
+		}
+		
+		
+		
+		
+		// パネルを再描画
+		imagePanel.repaint();
+	}
+	
+	private Color getColorWithIndex(int index) {
+		Color color = null;
+		switch (index) {
+		case 0:
+		case 1:
+		case 3:
+			color = new Color(255, 0, 255, 255);
+			break;
+		default:
+			color = new Color(255, 0, 255, 255);
+		}
+		return color;
 	}
 	
 	class ImagePanel extends JPanel {
@@ -102,12 +129,15 @@ public class VisionFrame extends NaimonInFrame {
 			g.setColor(Color.GRAY);
 			g.fillRect(0, 0, getWidth(), getHeight());
 			
-			double n = (double)image.getHeight() / image.getWidth();
+			double n = (double)gcdImage.getHeight() / gcdImage.getWidth();
 			int idrawWidth = (int)(getWidth() * 0.7); // 70%
 			int idrawHeight = (int)(idrawWidth * n);
 			int x = (getWidth() - idrawWidth) / 2;
 			int y = (getHeight() - idrawHeight) / 2;
-			g.drawImage(image, x, y, idrawWidth, idrawHeight, Color.BLACK, null);
+			g.drawImage(gcdImage, x, y, idrawWidth, idrawHeight, Color.BLACK, null);
+			synchronized (blobImage) {
+				g.drawImage(blobImage, x, y, idrawWidth, idrawHeight, null);
+			}
 		}
 		
 	}
@@ -158,6 +188,7 @@ public class VisionFrame extends NaimonInFrame {
 				}
 			}
 		}
+		
 	}
 
 }
