@@ -1,15 +1,22 @@
 package jp.ac.fit.asura.nao.naimon.ui;
 
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.zip.InflaterInputStream;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import org.w3c.dom.Document;
@@ -24,11 +31,20 @@ public class VisionFrame extends NaimonInFrame {
 	private BufferedImage blobImage = null;
 	
 	private ImagePanel imagePanel;
+	private ControlPanel controlPanel;
 	
 	public VisionFrame() {
 		init(160, 120);
 		imagePanel = new ImagePanel();
+		controlPanel = new ControlPanel();
+		
+		BoxLayout layout = new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS);
+		setLayout(layout);
 		add(imagePanel);
+		add(controlPanel);
+		
+		setMinimumSize(layout.preferredLayoutSize(this.getContentPane()));
+		pack();
 	}
 	
 	private void init(int width, int height) {
@@ -124,20 +140,70 @@ public class VisionFrame extends NaimonInFrame {
 	
 	class ImagePanel extends JPanel {
 
+		public ImagePanel() {
+			setMinimumSize(new Dimension(160, 120));
+			setPreferredSize(new Dimension(160, 120));
+		}
+		
 		@Override
 		protected void paintComponent(Graphics g) {
 			g.setColor(Color.GRAY);
 			g.fillRect(0, 0, getWidth(), getHeight());
 			
-			double n = (double)gcdImage.getHeight() / gcdImage.getWidth();
-			int idrawWidth = (int)(getWidth() * 0.7); // 70%
-			int idrawHeight = (int)(idrawWidth * n);
-			int x = (getWidth() - idrawWidth) / 2;
-			int y = (getHeight() - idrawHeight) / 2;
-			g.drawImage(gcdImage, x, y, idrawWidth, idrawHeight, Color.BLACK, null);
-			synchronized (blobImage) {
-				g.drawImage(blobImage, x, y, idrawWidth, idrawHeight, null);
+			int drawWidth = gcdImage.getWidth();
+			int drawHeight = gcdImage.getHeight();
+			int x = (getWidth() - drawWidth) / 2;
+			int y = (getHeight() - drawHeight) / 2;
+			if (controlPanel.isAutoScale) {
+				double n = (double)gcdImage.getHeight() / gcdImage.getWidth();
+				drawWidth = (int)(getWidth() * 0.8); // 80%
+				drawHeight = (int)(drawWidth * n);
+				x = (getWidth() - drawWidth) / 2;
+				y = (getHeight() - drawHeight) / 2;
 			}
+			
+			g.drawImage(gcdImage, x, y, drawWidth, drawHeight, Color.BLACK, null);
+			
+			if (controlPanel.isBlobOn) {
+				synchronized (blobImage) {
+					g.drawImage(blobImage, x, y, drawWidth, drawHeight, null);
+				}
+			}
+		}
+		
+	}
+	
+	class ControlPanel extends JPanel {
+		
+		protected boolean isBlobOn = true;
+		protected boolean isAutoScale = true;
+		
+		public ControlPanel() {
+			BoxLayout layout = new BoxLayout(this, BoxLayout.X_AXIS);
+			setLayout(layout);
+			
+			JCheckBox blobOnCheckBox = new JCheckBox("Blob表示");
+			blobOnCheckBox.setSelected(isBlobOn);
+			blobOnCheckBox.addActionListener(new ActionListener(){
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					isBlobOn = !isBlobOn;	
+				}
+			});
+			JCheckBox autoScaleCheckBox = new JCheckBox("自動スケール");
+			autoScaleCheckBox.setSelected(isAutoScale);
+			autoScaleCheckBox.addActionListener(new ActionListener(){
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					isAutoScale = !isAutoScale;
+					imagePanel.repaint();
+				}
+			});
+			
+			add(blobOnCheckBox);
+			add(autoScaleCheckBox);
+			
+			setMaximumSize(layout.preferredLayoutSize(this));
 		}
 		
 	}
