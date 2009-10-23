@@ -27,9 +27,11 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 public class VisionFrame extends NaimonInFrame {
 
+	// images
 	private BufferedImage gcdImage = null;
 	private BufferedImage blobImage = null;
 	
+	// Panels
 	private ImagePanel imagePanel;
 	private ControlPanel controlPanel;
 	
@@ -132,6 +134,9 @@ public class VisionFrame extends NaimonInFrame {
 		case 3:
 			color = new Color(255, 0, 255, 255);
 			break;
+		case 7:
+			color = new Color(255, 255, 255, 255);
+			break;
 		default:
 			color = new Color(255, 0, 255, 255);
 		}
@@ -156,7 +161,7 @@ public class VisionFrame extends NaimonInFrame {
 			int y = (getHeight() - drawHeight) / 2;
 			if (controlPanel.isAutoScale) {
 				double n = (double)gcdImage.getHeight() / gcdImage.getWidth();
-				drawWidth = (int)(getWidth() * 0.8); // 80%
+				drawWidth = (int)(getWidth() * 1.0); // 100%
 				drawHeight = (int)(drawWidth * n);
 				x = (getWidth() - drawWidth) / 2;
 				y = (getHeight() - drawHeight) / 2;

@@ -62,8 +62,9 @@ public class NaimonFrame extends JFrame {
 	 * 
 	 */
 	private void registerFrames() {
+		frames.add(new FieldFrame());
 		frames.add(new VisionFrame());
-		frames.add(new TestFrame());
+		//frames.add(new TestFrame());
 		
 		for (NaimonInFrame f : frames) {
 			desktop.add(f);
