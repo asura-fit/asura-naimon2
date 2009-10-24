@@ -3,8 +3,12 @@
  */
 package jp.ac.fit.asura.nao.naimon;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.logging.Logger;
 
 import javax.swing.event.EventListenerList;
@@ -30,7 +34,7 @@ public class NaimonConnector implements Runnable {
 	private static final String NAIMON_PREFIX = "/naimon2";
 	
 	private String host;
-	private String port;
+	private int port;
 	
 	private EventListenerList listenerList;
 	
@@ -43,12 +47,12 @@ public class NaimonConnector implements Runnable {
 		cThread = new Thread(this);
 		
 		host = conf.get("naimon.connect.last.host", "localhost");
-		port = conf.get("naimon.connect.last.port", "8080");
+		port = conf.get("naimon.connect.last.port", 8080);
 		
 		cThread.start();
 	}
 	
-	public void connect(String host, String port) {
+	public void connect(String host, int port) {
 		if (connected) {
 			disconnect();
 		}
@@ -123,5 +127,43 @@ public class NaimonConnector implements Runnable {
 		for (NaimonEventListener listener : listenerList.getListeners(NaimonEventListener.class)) {
 			listener.update((Document)doc.cloneNode(true));
 		}
+	}
+	
+	public boolean sendScheme(String scheme) {
+		String path = "/";
+		String param = "eval=" + scheme;
+		
+		Socket socket = null;
+		BufferedWriter writer = null;
+		try {
+			socket = new Socket(host, port);
+			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			log.warning("接続先:" + host + ":" + port + "へのソケットを開けませんでした。");
+			return false;
+		} catch (IOException e) {
+			e.printStackTrace();
+			log.warning("入出力エラーです。");
+			return false;
+		}
+		try {
+			writer.write("POST " + path + " HTTP/1.1\r\n");
+			writer.write("Host: " + host + ":" + port + "\r\n");
+			writer.write("Content-type: application/x-www-form-urlencoded\r\n");
+			writer.write("Content-length: " + param.getBytes().length + "\r\n\r\n");
+			writer.write(param + "\r\n");
+			writer.flush();
+			
+			writer.close();
+			socket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			log.warning("Scheme送信中の入出力エラーです。");
+			return false;
+		}
+		
+		log.info("scheme:" + scheme);
+		return true;
 	}
 }

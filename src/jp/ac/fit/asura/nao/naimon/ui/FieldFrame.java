@@ -80,6 +80,7 @@ public class FieldFrame extends NaimonInFrame {
 		int width = fieldImage.getWidth();
 		int height = fieldImage.getHeight();
 
+		BasicStroke defaultStroke = (BasicStroke) g2.getStroke();
 		g2.setStroke(new BasicStroke(5.0f));
 
 		// Fieldの下地色
@@ -141,6 +142,8 @@ public class FieldFrame extends NaimonInFrame {
 						- Field.DOT_RADIUS, Field.DOT_RADIUS, Field.DOT_RADIUS,
 				0, 360);
 
+		// Strokeを変更前に戻す
+		g2.setStroke(defaultStroke);
 	}
 
 	private void drawSelf(Graphics g, Color c, SelfObject so) {

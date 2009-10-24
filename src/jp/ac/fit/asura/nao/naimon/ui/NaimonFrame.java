@@ -65,6 +65,7 @@ public class NaimonFrame extends JFrame {
 		frames.add(new VisionFrame());
 		frames.add(new FieldFrame());
 		frames.add(new ValueTableFrame());
+		frames.add(new SchemeFrame());
 		//frames.add(new TestFrame());
 		
 		for (NaimonInFrame f : frames) {
@@ -184,16 +185,19 @@ public class NaimonFrame extends JFrame {
 		btn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String host = (String)hostCombo.getSelectedItem();
-				String port = (String)portCombo.getSelectedItem();
-				if (!Pattern.compile("^[0-9a-z]+(.[0-9a-z]+)*").matcher(host).matches() ||
-						!Pattern.compile("^[0-9]+").matcher(port).matches()) {
-					log.warning("Invalid hostname : " + host + ", port : " + port);
+				String host = (String) hostCombo.getSelectedItem();
+				String port = (String) portCombo.getSelectedItem();
+				if (!Pattern.compile("^[0-9a-z]+(.[0-9a-z]+)*").matcher(host)
+						.matches()
+						|| !Pattern.compile("^[0-9]+").matcher(port).matches()) {
+					log.warning("Invalid hostname : " + host + ", port : "
+							+ port);
 				} else {
-				// 
-				conf.set("naimon.connect.last.host", host);
-				conf.set("naimon.connect.last.port", port);
-				connector.connect(host, port);
+					// 
+					conf.set("naimon.connect.last.host", host);
+					conf.set("naimon.connect.last.port", port);
+					int p = Integer.parseInt(port);
+					connector.connect(host, p);
 				}
 				dialog.dispose();
 			}
