@@ -46,6 +46,7 @@ public class NaimonFrame extends JFrame {
 	private NaimonConnector connector = null;
 	
 	public NaimonFrame() {
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setTitle("Naimon");
 		
 		connector = new NaimonConnector();
