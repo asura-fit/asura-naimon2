@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="all">
+	<description>
+		Naimon Project
+	</description>
+	
+	<!--
+		Set properties
+	-->
+	<property name="srcdir" value="./src"/>
+	<property name="classdir" location="./build/class"/>
+	<property name="jarfile" location="./Naimon.jar"/>
+	
+	<!--
+		Set default target
+	-->
+	<target name="all" depends="compile, jar"></target>
+	
+	<target name="compile">
+		<mkdir dir="${classdir}"/>
+		<javac srcdir="${srcdir}" destdir="${classdir}" encoding="utf-8" debug="no"/>
+	</target>
+	
+	<target name="jar">
+		<copy todir="${classdir}" overwrite="true">
+			<fileset dir="${srcdir}">
+				<include name="**/resource/*"/>
+			</fileset>
+		</copy>
+		<jar basedir="${classdir}" jarfile="${jarfile}" compress="true">
+			<include name="jp/ac/fit/asura/nao/naimon/**"/>
+			<exclude name="**/.java"/>
+			<manifest>
+				<attribute name="Built-By" value="Team ASURA"/>
+				<attribute name="Main-Class" value="jp.ac.fit.asura.nao.naimon.Main"/>
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="clean">
+		<delete dir="${classdir}"/>
+		<delete file="${jarfile}"/>
+	</target>
+</project>
