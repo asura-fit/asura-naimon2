@@ -4,14 +4,20 @@
 package jp.ac.fit.asura.nao.naimon.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
+import java.io.File;
+import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDesktopPane;
@@ -34,7 +40,7 @@ public class NaimonFrame extends JFrame {
 	private static final Logger log = Logger.getLogger(NaimonConnector.class.toString());
 	private static final NaimonConfig conf = NaimonConfig.getInstance();
 	
-	private JDesktopPane desktop;
+	private MyDesktopPane desktop;
 	private LinkedHashSet<NaimonInFrame> frames;
 	
 	private NaimonConnector connector = null;
@@ -45,7 +51,7 @@ public class NaimonFrame extends JFrame {
 		connector = new NaimonConnector();
 		frames = new LinkedHashSet<NaimonInFrame>();
 		frames.clear();
-		desktop = new JDesktopPane();
+		desktop = new MyDesktopPane();
 		this.add(desktop, BorderLayout.CENTER);
 		
 		// フレームを登録
@@ -217,5 +223,29 @@ public class NaimonFrame extends JFrame {
 		
 		dialog.pack();
 		dialog.setVisible(true);
+	}
+	
+	class MyDesktopPane extends JDesktopPane {
+
+		private BufferedImage image;
+
+		public MyDesktopPane() {
+			setBackground(Color.BLACK);
+			try {
+				image = ImageIO.read(getClass().getResource(
+						"/jp/ac/fit/asura/nao/naimon/resource/naimon_background.png"
+						));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		@Override
+		protected void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			int x = getWidth() / 2 - image.getWidth() / 2;
+			int y = getHeight() / 2 - image.getHeight() / 2;
+			g.drawImage(image, x, y, null);
+		}
 	}
 }

@@ -57,8 +57,8 @@ final public class NaimonConfig {
 	private void setDefault() {
 		this.conf.setProperty("naimon.window.x", "0");
 		this.conf.setProperty("naimon.window.y", "0");
-		this.conf.setProperty("naimon.window.width", "640");
-		this.conf.setProperty("naimon.window.height", "480");
+		this.conf.setProperty("naimon.window.width", "800");
+		this.conf.setProperty("naimon.window.height", "600");
 		this.conf.setProperty("naimon.connect.hosts", "localhost;192.168.1.51;192.168.1.52;192.168.1.53;192.168.1.54;192.168.1.61;192.168.1.62;192.168.1.63;192.168.1.64;");
 		this.conf.setProperty("naimon.connect.ports", "8080");
 		this.conf.setProperty("connect.last.host", "localhost");
