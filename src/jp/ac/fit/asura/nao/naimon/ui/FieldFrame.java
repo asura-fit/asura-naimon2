@@ -80,10 +80,10 @@ public class FieldFrame extends NaimonInFrame {
 		int width = fieldImage.getWidth();
 		int height = fieldImage.getHeight();
 
-		g2.setStroke(new BasicStroke(2.0f));
+		g2.setStroke(new BasicStroke(5.0f));
 
 		// Fieldの下地色
-		g.setColor(Color.GREEN);
+		g.setColor(Color.GREEN.darker());
 		g.fillRect(0, 0, width, height);
 
 		// ゴールの色

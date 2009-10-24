@@ -116,7 +116,7 @@ public class VisionFrame extends NaimonInFrame {
 					g.drawRect(x, y, x2 - x, y2 - y);
 				}
 			}
-			
+			g.dispose();
 		}
 		
 		
@@ -160,11 +160,19 @@ public class VisionFrame extends NaimonInFrame {
 			int x = (getWidth() - drawWidth) / 2;
 			int y = (getHeight() - drawHeight) / 2;
 			if (controlPanel.isAutoScale) {
-				double n = (double)gcdImage.getHeight() / gcdImage.getWidth();
-				drawWidth = (int)(getWidth() * 1.0); // 100%
-				drawHeight = (int)(drawWidth * n);
-				x = (getWidth() - drawWidth) / 2;
-				y = (getHeight() - drawHeight) / 2;
+				if (getWidth() > getHeight()) {
+					double n = (double)gcdImage.getWidth() / gcdImage.getHeight();
+					drawHeight = (int)(getHeight() * 0.9); // 90%
+					drawWidth = (int)(drawHeight * n);
+					x = (getWidth() - drawWidth) / 2;
+					y = (getHeight() - drawHeight) / 2;
+				} else {
+					double n = (double)gcdImage.getHeight() / gcdImage.getWidth();
+					drawWidth = (int)(getWidth() * 0.9); // 90%
+					drawHeight = (int)(drawWidth * n);
+					x = (getWidth() - drawWidth) / 2;
+					y = (getHeight() - drawHeight) / 2;
+				}
 			}
 			
 			g.drawImage(gcdImage, x, y, drawWidth, drawHeight, Color.BLACK, null);
