@@ -63,6 +63,9 @@ final public class NaimonConfig {
 		this.conf.setProperty("naimon.connect.ports", "8080");
 		this.conf.setProperty("connect.last.host", "localhost");
 		this.conf.setProperty("connect.last.port", "8080");
+		this.conf.setProperty("naimon.window.backimage", getClass().getResource(
+						"/jp/ac/fit/asura/nao/naimon/resource/naimon_background.jpg"
+						).toString());
 	}
 
 	public int get(String key, int defaultValue) {

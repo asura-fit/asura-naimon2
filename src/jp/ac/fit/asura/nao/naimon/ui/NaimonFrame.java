@@ -13,6 +13,7 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.LinkedHashSet;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -232,17 +233,25 @@ public class NaimonFrame extends JFrame {
 
 		public MyDesktopPane() {
 			setBackground(Color.BLACK);
+			
+			String imagesrc = conf.get("naimon.window.backimage", "");
+			if (imagesrc.equals("")) {
+				imagesrc = getClass().getResource(
+						"/jp/ac/fit/asura/nao/naimon/resource/naimon_background.jpg"
+				).toString();
+			}
+			
 			try {
-				image = ImageIO.read(getClass().getResource(
-						"/jp/ac/fit/asura/nao/naimon/resource/naimon_background.png"
-						));
+				image = ImageIO.read(new URL(imagesrc));
 			} catch (IOException e) {
 				e.printStackTrace();
+				image = null;
 			}
 		}
 
 		@Override
 		protected void paintComponent(Graphics g) {
+			if (image == null) return;
 			super.paintComponent(g);
 			int x = getWidth() / 2 - image.getWidth() / 2;
 			int y = getHeight() / 2 - image.getHeight() / 2;
