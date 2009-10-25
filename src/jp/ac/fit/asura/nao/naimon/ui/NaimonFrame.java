@@ -9,6 +9,8 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
 import java.io.File;
@@ -62,12 +64,10 @@ public class NaimonFrame extends JFrame {
 		setConnector();
 		// メニュー項目を作成
 		createMenuBar();
-		// フレーム表示
-		//showFrames();
 	}
 	
 	/**
-	 * 
+	 * InFrameを登録して初期化します
 	 */
 	private void registerFrames() {
 		frames.add(new VisionFrame());
@@ -77,11 +77,46 @@ public class NaimonFrame extends JFrame {
 		//frames.add(new TestFrame());
 		
 		for (NaimonInFrame f : frames) {
-			desktop.add(f);
-			f.setVisible(true);
+			initInFrame(f);
 		}
 	}
 	
+	private void initInFrame(final NaimonInFrame f) {
+		
+		desktop.add(f);
+		
+		f.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent arg0) {
+				if (!f.isMaximum()) {
+					conf.set("naimon.frame." + f.getName() + ".width", f.getWidth());
+					conf.set("naimon.frame." + f.getName() + ".height", f.getHeight());
+				}
+			}
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				if (!f.isMaximum()) {
+					conf.set("naimon.frame." + f.getName() + ".x", f.getX());
+					conf.set("naimon.frame." + f.getName() + ".y", f.getY());
+				}
+			}
+		});
+		
+		// 位置を復元
+		int fw = conf.get("naimon.frame." + f.getName() + ".width", f.getWidth());
+		int fh = conf.get("naimon.frame." + f.getName() + ".height", f.getHeight());
+		int fx = conf.get("naimon.frame." + f.getName() + ".x", f.getX());
+		int fy = conf.get("naimon.frame." + f.getName() + ".y", f.getY());
+		f.setSize(fw, fh);
+		f.setLocation(fx, fy);
+		
+		// 表示
+		f.setVisible(true);
+	}
+	
+	/**
+	 * Connectorオブジェクトをセットします
+	 */
 	private void setConnector() {
 		for (NaimonInFrame f : frames) {
 			f.setConnector(connector);
@@ -89,16 +124,7 @@ public class NaimonFrame extends JFrame {
 	}
 	
 	/**
-	 * 
-	 */
-	private void showFrames() {
-		for (NaimonInFrame f : frames) {
-			
-		}
-	}
-	
-	/**
-	 * 
+	 * メニューバーを構成します
 	 */
 	private void createMenuBar() {
 		JMenuBar menubar = new JMenuBar();

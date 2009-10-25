@@ -10,6 +10,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -18,6 +20,8 @@ import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+
+import jp.ac.fit.asura.nao.naimon.NaimonConfig;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -28,7 +32,8 @@ import org.w3c.dom.NodeList;
  * 
  */
 public class FieldFrame extends NaimonInFrame {
-
+	private static final NaimonConfig conf = NaimonConfig.getInstance();
+	
 	private BufferedImage fieldImage;
 
 	private EnumMap<WorldObjects, WorldObject> objs;
@@ -168,17 +173,19 @@ public class FieldFrame extends NaimonInFrame {
 				- (int) (20 * Math.cos(so.yaw)));
 	}
 
-	private void drawObject(Graphics g, Color c, WorldObject wo) {
+	private void drawObject(Graphics g, Color c, WorldObject wo, SelfObject so) {
 		if (wo.cf == 0) {
 			return;
 		}
 		int x = (-wo.x / 10 + Field.LEFT_MARGIN + Field.WIDTH / 2);
 		int y = (-wo.y / 10 + Field.TOP_MARGIN + Field.HEIGHT / 2);
-
-		System.out.println("x = " + x + ", y= " + y);
+		
+		int sx = (-so.x / 10 + Field.LEFT_MARGIN + Field.WIDTH / 2);
+		int sy = (-so.y / 10 + Field.TOP_MARGIN + Field.HEIGHT / 2);
 
 		g.setColor(c);
 		g.fillArc(x - 15 / 2, y - 15 / 2, 15, 15, 0, 360);
+		g.drawLine(x, y, sx, sy);
 		g.setColor(c.darker());
 		g.drawArc(x - 15 / 2, y - 15 / 2, 15, 15, 0, 360);
 	}
@@ -249,9 +256,9 @@ public class FieldFrame extends NaimonInFrame {
 			drawFieldImage(g);
 			for (SelfObject so : candidates)
 				drawCandidate(g, Color.LIGHT_GRAY, so);
-			drawObject(g, Color.YELLOW, objs.get(WorldObjects.YellowGoal));
-			drawObject(g, Color.CYAN, objs.get(WorldObjects.BlueGoal));
-			drawObject(g, Color.ORANGE, objs.get(WorldObjects.Ball));
+			drawObject(g, Color.YELLOW, objs.get(WorldObjects.YellowGoal), self);
+			drawObject(g, Color.CYAN, objs.get(WorldObjects.BlueGoal), self);
+			drawObject(g, Color.ORANGE, objs.get(WorldObjects.Ball), self);
 			drawSelf(g, Color.GRAY, self);
 			g.dispose();
 		}
