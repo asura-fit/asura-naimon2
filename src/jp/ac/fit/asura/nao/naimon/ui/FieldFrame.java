@@ -191,6 +191,8 @@ public class FieldFrame extends NaimonInFrame {
 	@Override
 	public void update(Document document) {
 
+		init(WIDTH, HEIGHT);
+		
 		NodeList woNodeList = document.getElementsByTagName("WorldObject");
 		for (int i = 0; i < woNodeList.getLength(); i++) {
 			Element woElement = (Element) woNodeList.item(i);
