@@ -181,6 +181,35 @@ public class NaimonFrame extends JFrame {
 			});
 			windowMenu.add(item);
 		}
+		windowMenu.addSeparator();
+		JMenuItem item = new JMenuItem("すべて最小化");
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for (NaimonInFrame f : frames) {
+					try {
+						f.setIcon(true);
+					} catch (PropertyVetoException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
+		windowMenu.add(item);
+		item = new JMenuItem("すべて元に戻す");
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for (NaimonInFrame f : frames) {
+					try {
+						f.setIcon(false);
+					} catch (PropertyVetoException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
+		windowMenu.add(item);
 		
 		menubar.add(fileMenu);
 		menubar.add(windowMenu);
