@@ -20,21 +20,23 @@ final public class NaimonConfig {
 			.toString());
 	private static final NaimonConfig instance = new NaimonConfig();
 
-	private static final String CONF_FILE_NAME = "naimon.conf";
+	private static final String CONF_FILE_NAME = ".naimon.conf";
 	private static final String CONF_FILE_COMMENT = "naimon config file";
+	private static String CONF_FILE_PATH;
 
 	private Properties conf;
 
 	private NaimonConfig() {
+		CONF_FILE_PATH = System.getProperty("user.home") + File.separator + CONF_FILE_NAME;
 		loadConfigFile();
 	}
 
 	private void loadConfigFile() {
 		this.conf = new Properties();
 		try {
-			this.conf.load(new FileInputStream(CONF_FILE_NAME));
+			this.conf.load(new FileInputStream(CONF_FILE_PATH));
 		} catch (FileNotFoundException e) {
-			log.config("'" + CONF_FILE_NAME + "' not found. create default config file.");
+			log.config("'" + CONF_FILE_PATH + "' not found. create default config file.");
 			setDefault();
 			save();
 		} catch (IOException e) {
@@ -44,7 +46,7 @@ final public class NaimonConfig {
 
 	public void save() {
 		try {
-			this.conf.store(new FileOutputStream(CONF_FILE_NAME),
+			this.conf.store(new FileOutputStream(CONF_FILE_PATH),
 					CONF_FILE_COMMENT);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
