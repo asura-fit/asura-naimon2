@@ -9,7 +9,7 @@
 	-->
 	<property name="srcdir" value="./src"/>
 	<property name="classdir" location="./build/class"/>
-	<property name="jarfile" location="./Naimon.jar"/>
+	<property name="jarfile" location="./Naimon2.jar"/>
 	
 	<!--
 		Set default target
@@ -33,6 +33,7 @@
 			<manifest>
 				<attribute name="Built-By" value="Team ASURA"/>
 				<attribute name="Main-Class" value="jp.ac.fit.asura.nao.naimon.Main"/>
+				<attribute name="SplashScreen-Image" value="jp/ac/fit/asura/nao/naimon/resource/naimon_splash.png"/>
 			</manifest>
 		</jar>
 	</target>
