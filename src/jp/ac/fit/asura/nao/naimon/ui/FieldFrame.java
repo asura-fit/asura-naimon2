@@ -5,6 +5,7 @@ package jp.ac.fit.asura.nao.naimon.ui;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -51,11 +52,11 @@ public class FieldFrame extends NaimonInFrame {
 		fieldPanel = new FieldPanel();
 		controlPanel = new ControlPanel();
 
-		BoxLayout layout = new BoxLayout(this.getContentPane(),
-				BoxLayout.Y_AXIS);
-		setLayout(layout);
-		add(fieldPanel);
-		add(controlPanel);
+		Container cpane = this.getContentPane();
+		BoxLayout layout = new BoxLayout(cpane, BoxLayout.Y_AXIS);
+		cpane.setLayout(layout);
+		cpane.add(fieldPanel);
+		cpane.add(controlPanel);
 
 		// setMinimumSize(layout.preferredLayoutSize(this.getContentPane()));
 		pack();

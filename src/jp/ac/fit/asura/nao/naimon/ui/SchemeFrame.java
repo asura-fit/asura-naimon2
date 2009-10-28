@@ -4,6 +4,7 @@
 package jp.ac.fit.asura.nao.naimon.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -39,8 +40,9 @@ public class SchemeFrame extends NaimonInFrame {
 		schemePanel = new SchemePanel();
 		JScrollPane scrollPane = new JScrollPane(schemePanel);
 		
-		setLayout(new BorderLayout());
-		add(scrollPane, BorderLayout.CENTER);
+		Container cpane = this.getContentPane();
+		cpane.setLayout(new BorderLayout());
+		cpane.add(scrollPane, BorderLayout.CENTER);
 	}
 
 	private void init() {

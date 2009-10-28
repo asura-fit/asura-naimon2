@@ -40,10 +40,11 @@ public class VisionFrame extends NaimonInFrame {
 		imagePanel = new ImagePanel();
 		controlPanel = new ControlPanel();
 		
-		BoxLayout layout = new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS);
-		setLayout(layout);
-		add(imagePanel);
-		add(controlPanel);
+		Container cpane = this.getContentPane();
+		BoxLayout layout = new BoxLayout(cpane, BoxLayout.Y_AXIS);
+		cpane.setLayout(layout);
+		cpane.add(imagePanel);
+		cpane.add(controlPanel);
 		
 		setMinimumSize(layout.preferredLayoutSize(this.getContentPane()));
 		pack();

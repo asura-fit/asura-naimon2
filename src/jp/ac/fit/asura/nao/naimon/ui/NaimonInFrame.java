@@ -26,6 +26,8 @@ public abstract class NaimonInFrame extends JInternalFrame implements NaimonEven
 		this.setMaximizable(true);
 		// デフォルトのCLOSEオペレーション
 		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
+		// 例外を転送しない
+		this.setRootPaneCheckingEnabled(false);
 	}
 	
 	abstract public String getName();

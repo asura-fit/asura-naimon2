@@ -4,6 +4,7 @@
 package jp.ac.fit.asura.nao.naimon.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.util.Vector;
 
@@ -31,10 +32,11 @@ public class ValueTableFrame extends NaimonInFrame {
 		voValuePanel = new VisutalObjectValuePanel();
 		valuePanel = new ValuePanel();
 		
-		BoxLayout layout = new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS);
-		setLayout(layout);
-		add(voValuePanel);
-		add(valuePanel);
+		Container cpane = this.getContentPane();
+		BoxLayout layout = new BoxLayout(cpane, BoxLayout.Y_AXIS);
+		cpane.setLayout(layout);
+		cpane.add(voValuePanel);
+		cpane.add(valuePanel);
 		
 		setPreferredSize(layout.preferredLayoutSize(this.getContentPane()));
 		pack();
