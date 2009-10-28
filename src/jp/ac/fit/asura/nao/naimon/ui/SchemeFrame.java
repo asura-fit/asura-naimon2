@@ -14,7 +14,6 @@ import java.awt.event.MouseListener;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
-import javax.swing.BoxLayout;
 import javax.swing.InputMap;
 import javax.swing.JEditorPane;
 import javax.swing.JPopupMenu;
@@ -245,7 +244,7 @@ public class SchemeFrame extends NaimonInFrame {
 				try {
 					undoManager.undo();
 				} catch (Exception ex) {
-					// logger.warning("Unable to undo: " + ex);
+					ex.printStackTrace();
 				}
 				updateUndoRedoState();
 			}
@@ -265,7 +264,7 @@ public class SchemeFrame extends NaimonInFrame {
 				try {
 					undoManager.redo();
 				} catch (Exception ex) {
-					// logger.warning("Unable to redo: " + ex);
+					ex.printStackTrace();
 				}
 				updateUndoRedoState();
 			}

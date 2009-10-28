@@ -13,7 +13,6 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.LinkedHashSet;
@@ -40,7 +39,7 @@ import jp.ac.fit.asura.nao.naimon.NaimonConnector;
  *
  */
 public class NaimonFrame extends JFrame {
-	private static final Logger log = Logger.getLogger(NaimonConnector.class.toString());
+	private static final Logger log = Logger.getLogger(NaimonFrame.class.toString());
 	private static final NaimonConfig conf = NaimonConfig.getInstance();
 	
 	private MyDesktopPane desktop;
@@ -292,7 +291,7 @@ public class NaimonFrame extends JFrame {
 			String imagesrc = conf.get("naimon.window.backimage", "");
 			if (imagesrc.equals("")) {
 				imagesrc = getClass().getResource(
-						"/jp/ac/fit/asura/nao/naimon/resource/naimon_background.jpg"
+						"/jp/ac/fit/asura/nao/naimon/resource/naimon_background.png"
 				).toString();
 			}
 			

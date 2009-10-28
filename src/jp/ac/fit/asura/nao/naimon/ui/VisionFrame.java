@@ -3,7 +3,6 @@ package jp.ac.fit.asura.nao.naimon.ui;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -15,7 +14,6 @@ import java.io.IOException;
 import java.util.zip.InflaterInputStream;
 
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 

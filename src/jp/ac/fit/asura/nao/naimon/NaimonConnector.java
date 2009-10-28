@@ -110,7 +110,6 @@ public class NaimonConnector implements Runnable {
 					continue;
 				}
 				
-				//System.out.println(".");
 				fire(document);
 			}
 			

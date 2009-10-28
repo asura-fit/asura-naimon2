@@ -11,8 +11,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -21,8 +19,6 @@ import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
-
-import jp.ac.fit.asura.nao.naimon.NaimonConfig;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -33,7 +29,6 @@ import org.w3c.dom.NodeList;
  * 
  */
 public class FieldFrame extends NaimonInFrame {
-	private static final NaimonConfig conf = NaimonConfig.getInstance();
 	
 	private BufferedImage fieldImage;
 
@@ -255,8 +250,10 @@ public class FieldFrame extends NaimonInFrame {
 			Graphics g = fieldImage.createGraphics();
 			// Fieldを描画
 			drawFieldImage(g);
-			for (SelfObject so : candidates)
-				drawCandidate(g, Color.LIGHT_GRAY, so);
+			if (controlPanel.isDrawCandidate) {
+				for (SelfObject so : candidates)
+					drawCandidate(g, Color.LIGHT_GRAY, so);
+			}
 			drawObject(g, Color.YELLOW, objs.get(WorldObjects.YellowGoal), self);
 			drawObject(g, Color.CYAN, objs.get(WorldObjects.BlueGoal), self);
 			drawObject(g, Color.ORANGE, objs.get(WorldObjects.Ball), self);
@@ -303,10 +300,20 @@ public class FieldFrame extends NaimonInFrame {
 	class ControlPanel extends JPanel {
 
 		protected boolean isAutoScale = true;
+		protected boolean isDrawCandidate = true;
 
 		public ControlPanel() {
 			BoxLayout layout = new BoxLayout(this, BoxLayout.X_AXIS);
 			setLayout(layout);
+			
+			JCheckBox drawCandidateCheckBox = new JCheckBox("Candidate");
+			drawCandidateCheckBox.setSelected(isDrawCandidate);
+			drawCandidateCheckBox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					isDrawCandidate = !isDrawCandidate;	
+				}
+			});
 
 			JCheckBox autoScaleCheckBox = new JCheckBox("自動スケール");
 			autoScaleCheckBox.setSelected(isAutoScale);
@@ -318,6 +325,7 @@ public class FieldFrame extends NaimonInFrame {
 				}
 			});
 
+			add(drawCandidateCheckBox);
 			add(autoScaleCheckBox);
 
 			setPreferredSize(layout.preferredLayoutSize(this));
