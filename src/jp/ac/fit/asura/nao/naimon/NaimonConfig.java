@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package jp.ac.fit.asura.nao.naimon;
 
@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 
 /**
  * @author kilo
- * 
+ *
  */
 final public class NaimonConfig {
 	private static final Logger log = Logger.getLogger(NaimonConfig.class
@@ -59,29 +59,30 @@ final public class NaimonConfig {
 		this.conf.setProperty("naimon.window.y", "0");
 		this.conf.setProperty("naimon.window.width", "800");
 		this.conf.setProperty("naimon.window.height", "600");
-		
+
 		this.conf.setProperty("naimon.connect.hosts", "localhost;192.168.1.51;192.168.1.52;192.168.1.53;192.168.1.54;192.168.1.61;192.168.1.62;192.168.1.63;192.168.1.64;");
 		this.conf.setProperty("naimon.connect.ports", "8080");
 		this.conf.setProperty("connect.last.host", "localhost");
 		this.conf.setProperty("connect.last.port", "8080");
-		
-		this.conf.setProperty("naimon.window.backimage", getClass().getResource("/jp/ac/fit/asura/nao/naimon/resource/naimon_background.jpg").toString());
-		
+
+		this.conf.setProperty("naimon.window.backimage", getClass().getResource("/jp/ac/fit/asura/nao/naimon/resource/naimon_background.png" +
+				"").toString());
+
 		this.conf.setProperty("naimon.frame.Vision.x", "326");
 		this.conf.setProperty("naimon.frame.Vision.y", "0");
 		this.conf.setProperty("naimon.frame.Vision.width", "466");
 		this.conf.setProperty("naimon.frame.Vision.height", "195");
-		
+
 		this.conf.setProperty("naimon.frame.Field.x", "0");
 		this.conf.setProperty("naimon.frame.Field.y", "0");
 		this.conf.setProperty("naimon.frame.Field.width", "326");
 		this.conf.setProperty("naimon.frame.Field.height", "550");
-		
+
 		this.conf.setProperty("naimon.frame.ValueTable.x", "326");
 		this.conf.setProperty("naimon.frame.ValueTable.y", "195");
 		this.conf.setProperty("naimon.frame.ValueTable.width", "466");
 		this.conf.setProperty("naimon.frame.ValueTable.height", "225");
-		
+
 		this.conf.setProperty("naimon.frame.Scheme.x", "326");
 		this.conf.setProperty("naimon.frame.Scheme.y", "420");
 		this.conf.setProperty("naimon.frame.Scheme.width", "466");
