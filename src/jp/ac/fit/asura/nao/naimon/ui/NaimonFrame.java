@@ -29,6 +29,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import jp.ac.fit.asura.nao.naimon.NaimonConfig;
@@ -73,7 +74,6 @@ public class NaimonFrame extends JFrame {
 		frames.add(new FieldFrame());
 		frames.add(new ValueTableFrame());
 		frames.add(new SchemeFrame());
-		//frames.add(new TestFrame());
 		
 		for (NaimonInFrame f : frames) {
 			initInFrame(f);
@@ -254,6 +254,9 @@ public class NaimonFrame extends JFrame {
 						|| !Pattern.compile("^[0-9]+").matcher(port).matches()) {
 					log.warning("Invalid hostname : " + host + ", port : "
 							+ port);
+					JOptionPane.showMessageDialog(null, 
+							"接続先:" + host + " または、ポート:" + port + " が正しくありません", 
+							"エラー", JOptionPane.ERROR_MESSAGE);
 				} else {
 					// 
 					conf.set("naimon.connect.last.host", host);
@@ -278,6 +281,9 @@ public class NaimonFrame extends JFrame {
 		dialog.add(panel);
 		
 		dialog.pack();
+		int x = this.getWidth() / 2 - dialog.getWidth() / 2;
+		int y = this.getHeight() / 2 - dialog.getHeight() / 2;
+		dialog.setLocation(this.getX() + x, this.getY() + y);
 		dialog.setVisible(true);
 	}
 	
