@@ -37,27 +37,28 @@ import jp.ac.fit.asura.nao.naimon.NaimonConnector;
 
 /**
  * @author kilo
- *
+ * 
  */
 public class NaimonFrame extends JFrame {
-	private static final Logger log = Logger.getLogger(NaimonFrame.class.toString());
+	private static final Logger log = Logger.getLogger(NaimonFrame.class
+			.toString());
 	private static final NaimonConfig conf = NaimonConfig.getInstance();
-	
+
 	private MyDesktopPane desktop;
 	private LinkedHashSet<NaimonInFrame> frames;
-	
+
 	private NaimonConnector connector = null;
-	
+
 	public NaimonFrame() {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setTitle("Naimon");
-		
+
 		connector = new NaimonConnector();
 		frames = new LinkedHashSet<NaimonInFrame>();
 		frames.clear();
 		desktop = new MyDesktopPane();
 		this.add(desktop, BorderLayout.CENTER);
-		
+
 		// フレームを登録
 		registerFrames();
 		// setConnector
@@ -65,33 +66,37 @@ public class NaimonFrame extends JFrame {
 		// メニュー項目を作成
 		createMenuBar();
 	}
-	
+
 	/**
 	 * InFrameを登録して初期化します
 	 */
 	private void registerFrames() {
 		frames.add(new VisionFrame());
 		frames.add(new FieldFrame());
+		frames.add(new LogFrame());
 		frames.add(new ValueTableFrame());
 		frames.add(new SchemeFrame());
-		
+
 		for (NaimonInFrame f : frames) {
 			initInFrame(f);
 		}
 	}
-	
+
 	private void initInFrame(final NaimonInFrame f) {
-		
+
 		desktop.add(f);
-		
+
 		f.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent arg0) {
 				if (!f.isMaximum()) {
-					conf.set("naimon.frame." + f.getName() + ".width", f.getWidth());
-					conf.set("naimon.frame." + f.getName() + ".height", f.getHeight());
+					conf.set("naimon.frame." + f.getName() + ".width", f
+							.getWidth());
+					conf.set("naimon.frame." + f.getName() + ".height", f
+							.getHeight());
 				}
 			}
+
 			@Override
 			public void componentMoved(ComponentEvent e) {
 				if (!f.isMaximum()) {
@@ -100,19 +105,21 @@ public class NaimonFrame extends JFrame {
 				}
 			}
 		});
-		
+
 		// 位置を復元
-		int fw = conf.get("naimon.frame." + f.getName() + ".width", f.getWidth());
-		int fh = conf.get("naimon.frame." + f.getName() + ".height", f.getHeight());
+		int fw = conf.get("naimon.frame." + f.getName() + ".width", f
+				.getWidth());
+		int fh = conf.get("naimon.frame." + f.getName() + ".height", f
+				.getHeight());
 		int fx = conf.get("naimon.frame." + f.getName() + ".x", f.getX());
 		int fy = conf.get("naimon.frame." + f.getName() + ".y", f.getY());
 		f.setSize(fw, fh);
 		f.setLocation(fx, fy);
-		
+
 		// 表示
 		f.setVisible(true);
 	}
-	
+
 	/**
 	 * Connectorオブジェクトをセットします
 	 */
@@ -121,13 +128,13 @@ public class NaimonFrame extends JFrame {
 			f.setConnector(connector);
 		}
 	}
-	
+
 	/**
 	 * メニューバーを構成します
 	 */
 	private void createMenuBar() {
 		JMenuBar menubar = new JMenuBar();
-		
+
 		JMenu fileMenu = new JMenu("ファイル");
 		JMenuItem newItem = new JMenuItem("新しい接続");
 		newItem.addActionListener(new ActionListener() {
@@ -140,22 +147,22 @@ public class NaimonFrame extends JFrame {
 		closeItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				connector.disconnect();	
+				connector.disconnect();
 			}
 		});
 		JMenuItem quitItem = new JMenuItem("終了");
 		quitItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.exit(0);	
+				System.exit(0);
 			}
 		});
-		
+
 		fileMenu.add(newItem);
 		fileMenu.add(closeItem);
 		fileMenu.addSeparator();
 		fileMenu.add(quitItem);
-		
+
 		// frame menu
 		JMenu windowMenu = new JMenu("ウィンドウ");
 		for (final NaimonInFrame f : frames) {
@@ -171,7 +178,11 @@ public class NaimonFrame extends JFrame {
 						}
 					} else {
 						try {
-							f.setIcon(true);
+							if (!f.isSelected()) {
+								desktop.getDesktopManager().activateFrame(f);
+							} else {
+								f.setIcon(true);
+							}
 						} catch (PropertyVetoException e1) {
 							e1.printStackTrace();
 						}
@@ -209,18 +220,18 @@ public class NaimonFrame extends JFrame {
 			}
 		});
 		windowMenu.add(item);
-		
+
 		menubar.add(fileMenu);
 		menubar.add(windowMenu);
-		
+
 		this.setJMenuBar(menubar);
 	}
-	
+
 	private void showConnectDialog() {
 		final JDialog dialog = new JDialog(this, "新規接続", true);
 		JPanel panel = new JPanel();
 		panel.setLayout(new GridLayout(2, 1));
-		
+
 		String str;
 		str = conf.get("naimon.connect.hosts", "localhost");
 		str = conf.get("naimon.connect.last.host", "localhost") + ";" + str;
@@ -228,20 +239,20 @@ public class NaimonFrame extends JFrame {
 		str = conf.get("naimon.connect.ports", "8080");
 		str = conf.get("naimon.connect.last.port", "8080") + ";" + str;
 		String[] ports = str.split(";");
-		
+
 		JPanel p = new JPanel();
-		
+
 		final JComboBox hostCombo = new JComboBox(hosts);
 		final JComboBox portCombo = new JComboBox(ports);
 		hostCombo.setEditable(true);
 		portCombo.setEditable(true);
-		
+
 		p.add(new JLabel("ホスト"));
 		p.add(hostCombo);
 		p.add(new JLabel("ポート"));
 		p.add(portCombo);
 		panel.add(p);
-		
+
 		p = new JPanel();
 		JButton btn = new JButton("接続");
 		btn.addActionListener(new ActionListener() {
@@ -254,9 +265,9 @@ public class NaimonFrame extends JFrame {
 						|| !Pattern.compile("^[0-9]+").matcher(port).matches()) {
 					log.warning("Invalid hostname : " + host + ", port : "
 							+ port);
-					JOptionPane.showMessageDialog(null, 
-							"接続先:" + host + " または、ポート:" + port + " が正しくありません", 
-							"エラー", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, "接続先:" + host
+							+ " または、ポート:" + port + " が正しくありません", "エラー",
+							JOptionPane.ERROR_MESSAGE);
 				} else {
 					// 
 					conf.set("naimon.connect.last.host", host);
@@ -272,35 +283,36 @@ public class NaimonFrame extends JFrame {
 		btn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				dialog.dispose();	
+				dialog.dispose();
 			}
 		});
 		p.add(btn);
 		panel.add(p);
-		
+
 		dialog.add(panel);
-		
+
 		dialog.pack();
 		int x = this.getWidth() / 2 - dialog.getWidth() / 2;
 		int y = this.getHeight() / 2 - dialog.getHeight() / 2;
 		dialog.setLocation(this.getX() + x, this.getY() + y);
 		dialog.setVisible(true);
 	}
-	
+
 	class MyDesktopPane extends JDesktopPane {
 
 		private BufferedImage image;
 
 		public MyDesktopPane() {
 			setBackground(Color.BLACK);
-			
+
 			String imagesrc = conf.get("naimon.window.backimage", "");
 			if (imagesrc.equals("")) {
-				imagesrc = getClass().getResource(
-						"/jp/ac/fit/asura/nao/naimon/resource/naimon_background.png"
-				).toString();
+				imagesrc = getClass()
+						.getResource(
+								"/jp/ac/fit/asura/nao/naimon/resource/naimon_background.png")
+						.toString();
 			}
-			
+
 			try {
 				image = ImageIO.read(new URL(imagesrc));
 			} catch (IOException e) {
@@ -311,7 +323,8 @@ public class NaimonFrame extends JFrame {
 
 		@Override
 		protected void paintComponent(Graphics g) {
-			if (image == null) return;
+			if (image == null)
+				return;
 			super.paintComponent(g);
 			int x = getWidth() / 2 - image.getWidth() / 2;
 			int y = getHeight() / 2 - image.getHeight() / 2;

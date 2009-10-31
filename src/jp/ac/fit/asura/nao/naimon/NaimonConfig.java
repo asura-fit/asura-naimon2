@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 
 /**
  * @author kilo
- *
+ * 
  */
 final public class NaimonConfig {
 	private static final Logger log = Logger.getLogger(NaimonConfig.class
@@ -27,7 +27,8 @@ final public class NaimonConfig {
 	private Properties conf;
 
 	private NaimonConfig() {
-		CONF_FILE_PATH = System.getProperty("user.home") + File.separator + CONF_FILE_NAME;
+		CONF_FILE_PATH = System.getProperty("user.home") + File.separator
+				+ CONF_FILE_NAME;
 		loadConfigFile();
 	}
 
@@ -36,7 +37,8 @@ final public class NaimonConfig {
 		try {
 			this.conf.load(new FileInputStream(CONF_FILE_PATH));
 		} catch (FileNotFoundException e) {
-			log.config("'" + CONF_FILE_PATH + "' not found. create default config file.");
+			log.config("'" + CONF_FILE_PATH
+					+ "' not found. create default config file.");
 			setDefault();
 			save();
 		} catch (IOException e) {
@@ -46,8 +48,9 @@ final public class NaimonConfig {
 
 	public void save() {
 		try {
-			this.conf.store(new FileOutputStream(CONF_FILE_PATH),
-					CONF_FILE_COMMENT);
+			FileOutputStream out = new FileOutputStream(CONF_FILE_PATH);
+			this.conf.store(out, CONF_FILE_COMMENT);
+			out.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -62,13 +65,18 @@ final public class NaimonConfig {
 		this.conf.setProperty("naimon.window.width", "800");
 		this.conf.setProperty("naimon.window.height", "600");
 
-		this.conf.setProperty("naimon.connect.hosts", "localhost;192.168.1.51;192.168.1.52;192.168.1.53;192.168.1.54;192.168.1.61;192.168.1.62;192.168.1.63;192.168.1.64;");
+		this.conf
+				.setProperty(
+						"naimon.connect.hosts",
+						"localhost;192.168.1.51;192.168.1.52;192.168.1.53;192.168.1.54;192.168.1.61;192.168.1.62;192.168.1.63;192.168.1.64;");
 		this.conf.setProperty("naimon.connect.ports", "8080");
 		this.conf.setProperty("connect.last.host", "localhost");
 		this.conf.setProperty("connect.last.port", "8080");
 
-		this.conf.setProperty("naimon.window.backimage", getClass().getResource("/jp/ac/fit/asura/nao/naimon/resource/naimon_background.png" +
-				"").toString());
+		this.conf.setProperty("naimon.window.backimage", getClass()
+				.getResource(
+						"/jp/ac/fit/asura/nao/naimon/resource/naimon_background.png"
+								+ "").toString());
 
 		this.conf.setProperty("naimon.frame.Vision.x", "326");
 		this.conf.setProperty("naimon.frame.Vision.y", "0");
@@ -89,6 +97,11 @@ final public class NaimonConfig {
 		this.conf.setProperty("naimon.frame.Scheme.y", "420");
 		this.conf.setProperty("naimon.frame.Scheme.width", "466");
 		this.conf.setProperty("naimon.frame.Scheme.height", "130");
+
+		this.conf.setProperty("naimon.frame.Log.x", "0");
+		this.conf.setProperty("naimon.frame.Log.y", "350");
+		this.conf.setProperty("naimon.frame.Log.width", "780");
+		this.conf.setProperty("naimon.frame.Log.height", "190");
 	}
 
 	public int get(String key, int defaultValue) {
