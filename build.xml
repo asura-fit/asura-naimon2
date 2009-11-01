@@ -3,24 +3,24 @@
 	<description>
 		Naimon Project
 	</description>
-	
+
 	<!--
 		Set properties
 	-->
 	<property name="srcdir" value="./src"/>
 	<property name="classdir" location="./build/class"/>
 	<property name="jarfile" location="./Naimon2.jar"/>
-	
+
 	<!--
 		Set default target
 	-->
 	<target name="all" depends="compile, jar"></target>
-	
+
 	<target name="compile">
 		<mkdir dir="${classdir}"/>
 		<javac srcdir="${srcdir}" destdir="${classdir}" encoding="utf-8" debug="no"/>
 	</target>
-	
+
 	<target name="jar">
 		<copy todir="${classdir}" overwrite="true">
 			<fileset dir="${srcdir}">
@@ -33,11 +33,11 @@
 			<manifest>
 				<attribute name="Built-By" value="Team ASURA"/>
 				<attribute name="Main-Class" value="jp.ac.fit.asura.nao.naimon.Main"/>
-				<attribute name="SplashScreen-Image" value="jp/ac/fit/asura/nao/naimon/resource/naimon_splash.png"/>
+				<attribute name="SplashScreen-Image" value="jp/ac/fit/asura/nao/naimon/resource/naimon_splash2.png"/>
 			</manifest>
 		</jar>
 	</target>
-	
+
 	<target name="clean">
 		<delete dir="${classdir}"/>
 		<delete file="${jarfile}"/>

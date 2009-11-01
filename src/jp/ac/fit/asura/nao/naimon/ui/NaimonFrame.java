@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package jp.ac.fit.asura.nao.naimon.ui;
 
@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDesktopPane;
@@ -37,7 +38,7 @@ import jp.ac.fit.asura.nao.naimon.NaimonConnector;
 
 /**
  * @author kilo
- * 
+ *
  */
 public class NaimonFrame extends JFrame {
 	private static final Logger log = Logger.getLogger(NaimonFrame.class
@@ -52,6 +53,7 @@ public class NaimonFrame extends JFrame {
 	public NaimonFrame() {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setTitle("Naimon");
+		setIconImage(new ImageIcon(getClass().getResource("/jp/ac/fit/asura/nao/naimon/resource/naimon_icon.png")).getImage());
 
 		connector = new NaimonConnector();
 		frames = new LinkedHashSet<NaimonInFrame>();
@@ -269,7 +271,7 @@ public class NaimonFrame extends JFrame {
 							+ " または、ポート:" + port + " が正しくありません", "エラー",
 							JOptionPane.ERROR_MESSAGE);
 				} else {
-					// 
+					//
 					conf.set("naimon.connect.last.host", host);
 					conf.set("naimon.connect.last.port", port);
 					int p = Integer.parseInt(port);
