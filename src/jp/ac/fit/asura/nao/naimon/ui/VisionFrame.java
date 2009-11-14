@@ -5,9 +5,11 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,20 +31,24 @@ public class VisionFrame extends NaimonInFrame {
 	private BufferedImage gcdImage = null;
 	private BufferedImage blobImage = null;
 	private BufferedImage houghImage = null;
+	private BufferedImage houghPlane = null;
 
 	// Panels
 	private ImagePanel imagePanel;
 	private ControlPanel controlPanel;
+	private HoughPanel houghPanel;
 
 	public VisionFrame() {
 		init(160, 120);
 		imagePanel = new ImagePanel();
+		houghPanel = new HoughPanel();
 		controlPanel = new ControlPanel();
 
 		Container cpane = this.getContentPane();
 		BoxLayout layout = new BoxLayout(cpane, BoxLayout.Y_AXIS);
 		cpane.setLayout(layout);
 		cpane.add(imagePanel);
+		cpane.add(houghPanel);
 		cpane.add(controlPanel);
 
 		setMinimumSize(layout.preferredLayoutSize(this.getContentPane()));
@@ -56,6 +62,16 @@ public class VisionFrame extends NaimonInFrame {
 		houghImage = new BufferedImage(width, height,
 				BufferedImage.TYPE_INT_ARGB);
 		setTitle(this.getName() + " " + width + "x" + height);
+	}
+
+	private void initHough(int width, int height) {
+		houghPlane = new BufferedImage(width, height,
+				BufferedImage.TYPE_BYTE_GRAY);
+		LayoutManager layout = getLayout();
+		houghPanel.setMinimumSize(new Dimension(width, height));
+		houghPanel.setPreferredSize(new Dimension(width, height));
+		setMinimumSize(layout.preferredLayoutSize(this.getContentPane()));
+		pack();
 	}
 
 	@Override
@@ -72,29 +88,12 @@ public class VisionFrame extends NaimonInFrame {
 		int height = Integer.parseInt(gcd.getAttribute("height"));
 		int length = Integer.parseInt(gcd.getAttribute("length"));
 		String gdata = gcd.getTextContent();
-		// 使用するBufferedImageを初期化する
+		// 使用するBufferedImageを�?期化する
 		init(width, height);
 
-		// Base64をでコード後、展開する
-		ByteArrayInputStream bin = new ByteArrayInputStream(Base64
-				.decode(gdata));
-		InflaterInputStream iin = new InflaterInputStream(bin);
+		// Base64をデコード後、展開する
 		byte[] gcdPlane = new byte[length];
-		try {
-			int count = 0;
-			while (true) {
-				int ret = iin.read(gcdPlane, count, gcdPlane.length - count);
-				if (ret <= 0 || ret == gcdPlane.length) {
-					break;
-				} else {
-					count += ret;
-				}
-			}
-			iin.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
+		inflateWithBase64(gdata, gcdPlane);
 		int[] pixels = ((DataBufferInt) gcdImage.getRaster().getDataBuffer())
 				.getData();
 		// gcdPlaneをgcdImageに反映
@@ -126,42 +125,32 @@ public class VisionFrame extends NaimonInFrame {
 		Element hough = (Element) document.getElementsByTagName("Hough")
 				.item(0);
 		if (hough != null) {
-			// Houghの表示・非表示を切り替えるためのボタンを有効化
-			controlPanel.houghOnCheckBox.setEnabled(true);
+			// Houghの表示・非表示を切り替えるためのボタンを有効�?
+			// controlPanel.houghOnCheckBox.setEnabled(true);
 
 			int hough_width = Integer.parseInt(hough.getAttribute("width"));
 			int hough_height = Integer.parseInt(hough.getAttribute("height"));
 			int hough_length = Integer.parseInt(hough.getAttribute("length"));
 			String hdata = hough.getTextContent();
 
-			// Base64をでコード後、展開する
-			ByteArrayInputStream bin2 = new ByteArrayInputStream(Base64
-					.decode(hdata));
-			InflaterInputStream iin2 = new InflaterInputStream(bin2);
-			byte[] houghPlane = new byte[hough_length];
-			try {
-				int count = 0;
-				while (true) {
-					int ret = iin2.read(houghPlane, count, houghPlane.length
-							- count);
-					if (ret <= 0 || ret == houghPlane.length) {
-						break;
-					} else {
-						count += ret;
-					}
-				}
-				iin2.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			// 使用するBufferedImageを初期化する
+			if (houghPlane == null || houghPlane.getWidth() != hough_width
+					|| houghPlane.getHeight() != hough_height)
+				initHough(hough_width, hough_height);
 
-			drawHough(houghPlane, hough_width, hough_height);
+			// Base64をデコード後、展開する
+			byte[] hbytes = ((DataBufferByte) houghPlane.getRaster()
+					.getDataBuffer()).getData();
+			inflateWithBase64(hdata, hbytes);
+
+			drawHough(hbytes, hough_width, hough_height);
+			houghPanel.repaint();
 		} else {
-			// Houghノードはないのでボタンを無効にする
+			// Houghノ�?ド�?な�??でボタンを無効にする
 			controlPanel.houghOnCheckBox.setEnabled(false);
 		}
 
-		// パネルを再描画
+		// パネルを�?描画
 		imagePanel.repaint();
 	}
 
@@ -203,6 +192,26 @@ public class VisionFrame extends NaimonInFrame {
 			color = new Color(255, 0, 255, 255);
 		}
 		return color;
+	}
+
+	private void inflateWithBase64(String src, byte[] dst) {
+		ByteArrayInputStream bin = new ByteArrayInputStream(Base64.decode(src));
+		InflaterInputStream iin = new InflaterInputStream(bin);
+
+		try {
+			int count = 0;
+			while (true) {
+				int ret = iin.read(dst, count, dst.length - count);
+				if (ret <= 0 || ret == dst.length) {
+					break;
+				} else {
+					count += ret;
+				}
+			}
+			iin.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	class ImagePanel extends JPanel {
@@ -303,6 +312,26 @@ public class VisionFrame extends NaimonInFrame {
 			setMaximumSize(layout.preferredLayoutSize(this));
 		}
 
+	}
+
+	class HoughPanel extends JPanel {
+
+		public HoughPanel() {
+			setMinimumSize(new Dimension(160, 120));
+			setPreferredSize(new Dimension(160, 120));
+		}
+
+		@Override
+		protected void paintComponent(Graphics g) {
+			g.setColor(Color.GRAY);
+			g.fillRect(0, 0, getWidth(), getHeight());
+
+			int drawWidth = houghPlane.getWidth();
+			int drawHeight = houghPlane.getHeight();
+
+			g.drawImage(houghPlane, 0, 0, drawWidth, drawHeight, Color.BLACK,
+					null);
+		}
 	}
 
 	static class GCD {
