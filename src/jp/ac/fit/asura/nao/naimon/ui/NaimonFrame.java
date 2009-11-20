@@ -53,7 +53,9 @@ public class NaimonFrame extends JFrame {
 	public NaimonFrame() {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setTitle("Naimon");
-		setIconImage(new ImageIcon(getClass().getResource("/jp/ac/fit/asura/nao/naimon/resource/naimon_icon.png")).getImage());
+		setIconImage(new ImageIcon(getClass().getResource(
+				"/jp/ac/fit/asura/nao/naimon/resource/naimon_icon.png"))
+				.getImage());
 
 		connector = new NaimonConnector();
 		frames = new LinkedHashSet<NaimonInFrame>();
@@ -325,9 +327,9 @@ public class NaimonFrame extends JFrame {
 
 		@Override
 		protected void paintComponent(Graphics g) {
+			super.paintComponent(g);
 			if (image == null)
 				return;
-			super.paintComponent(g);
 			int x = getWidth() / 2 - image.getWidth() / 2;
 			int y = getHeight() / 2 - image.getHeight() / 2;
 			g.drawImage(image, x, y, null);

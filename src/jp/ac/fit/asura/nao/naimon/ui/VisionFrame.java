@@ -326,6 +326,8 @@ public class VisionFrame extends NaimonInFrame {
 			g.setColor(Color.GRAY);
 			g.fillRect(0, 0, getWidth(), getHeight());
 
+			if (houghPlane == null)
+				return;
 			int drawWidth = houghPlane.getWidth();
 			int drawHeight = houghPlane.getHeight();
 
