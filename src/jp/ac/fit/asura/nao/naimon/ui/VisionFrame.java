@@ -88,7 +88,7 @@ public class VisionFrame extends NaimonInFrame {
 		int height = Integer.parseInt(gcd.getAttribute("height"));
 		int length = Integer.parseInt(gcd.getAttribute("length"));
 		String gdata = gcd.getTextContent();
-		// 使用するBufferedImageを�?期化する
+		// 使用するBufferedImageを初期化する
 		init(width, height);
 
 		// Base64をデコード後、展開する
@@ -119,13 +119,40 @@ public class VisionFrame extends NaimonInFrame {
 					g.drawRect(x, y, x2 - x, y2 - y);
 				}
 			}
+
+			Element objects = (Element) document.getElementsByTagName(
+					"VisualObjects").item(0);
+			NodeList items = objects.getElementsByTagName("Item");
+			for (int i = 0; i < items.getLength(); i++) {
+				Element e = (Element) items.item(i);
+				NodeList polygon = e.getElementsByTagName("Polygon");
+
+				// VisualObjectを囲むPolygonを表示, 色はどうする?
+				if (polygon.getLength() > 1) {
+					g.setColor(Color.ORANGE);
+					Element first = (Element) polygon.item(0);
+					int firstX, firstY, lastX, lastY;
+					firstX = lastX = Integer.parseInt(first.getAttribute("x"));
+					firstY = lastY = Integer.parseInt(first.getAttribute("y"));
+					for (int j = 1; j < polygon.getLength(); j++) {
+						Element p = (Element) polygon.item(j);
+						int x = Integer.parseInt(p.getAttribute("x"));
+						int y = Integer.parseInt(p.getAttribute("y"));
+						g.drawLine(lastX, lastY, x, y);
+						lastX = x;
+						lastY = y;
+					}
+					g.drawLine(lastX, lastY, firstX, firstY);
+				}
+			}
+
 			g.dispose();
 		}
 
 		Element hough = (Element) document.getElementsByTagName("Hough")
 				.item(0);
 		if (hough != null) {
-			// Houghの表示・非表示を切り替えるためのボタンを有効�?
+			// Houghの表示・非表示を切り替えるためのボタンを有効化
 			// controlPanel.houghOnCheckBox.setEnabled(true);
 
 			int hough_width = Integer.parseInt(hough.getAttribute("width"));
@@ -146,11 +173,11 @@ public class VisionFrame extends NaimonInFrame {
 			drawHough(hbytes, hough_width, hough_height);
 			houghPanel.repaint();
 		} else {
-			// Houghノ�?ド�?な�??でボタンを無効にする
+			// Houghノードはないのでボタンを無効にする
 			controlPanel.houghOnCheckBox.setEnabled(false);
 		}
 
-		// パネルを�?描画
+		// パネルを再描画
 		imagePanel.repaint();
 	}
 
