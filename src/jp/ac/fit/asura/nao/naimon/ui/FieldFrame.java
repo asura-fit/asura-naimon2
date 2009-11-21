@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package jp.ac.fit.asura.nao.naimon.ui;
 
@@ -26,10 +26,10 @@ import org.w3c.dom.NodeList;
 
 /**
  * @author kilo
- * 
+ *
  */
 public class FieldFrame extends NaimonInFrame {
-	
+
 	private BufferedImage fieldImage;
 
 	private EnumMap<WorldObjects, WorldObject> objs;
@@ -175,7 +175,7 @@ public class FieldFrame extends NaimonInFrame {
 		}
 		int x = (-wo.x / 10 + Field.LEFT_MARGIN + Field.WIDTH / 2);
 		int y = (-wo.y / 10 + Field.TOP_MARGIN + Field.HEIGHT / 2);
-		
+
 		int sx = (-so.x / 10 + Field.LEFT_MARGIN + Field.WIDTH / 2);
 		int sy = (-so.y / 10 + Field.TOP_MARGIN + Field.HEIGHT / 2);
 
@@ -195,7 +195,7 @@ public class FieldFrame extends NaimonInFrame {
 	public void update(Document document) {
 
 		init(WIDTH, HEIGHT);
-		
+
 		NodeList woNodeList = document.getElementsByTagName("WorldObject");
 		for (int i = 0; i < woNodeList.getLength(); i++) {
 			Element woElement = (Element) woNodeList.item(i);
@@ -224,8 +224,6 @@ public class FieldFrame extends NaimonInFrame {
 				self.x = x;
 				self.y = y;
 				self.yaw = (float) Math.toRadians(yaw);
-				if (true)
-					self.yaw = -self.yaw;
 				self.cf = cf;
 				break;
 			default:
@@ -305,13 +303,13 @@ public class FieldFrame extends NaimonInFrame {
 		public ControlPanel() {
 			BoxLayout layout = new BoxLayout(this, BoxLayout.X_AXIS);
 			setLayout(layout);
-			
+
 			JCheckBox drawCandidateCheckBox = new JCheckBox("Candidate");
 			drawCandidateCheckBox.setSelected(isDrawCandidate);
 			drawCandidateCheckBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					isDrawCandidate = !isDrawCandidate;	
+					isDrawCandidate = !isDrawCandidate;
 				}
 			});
 
