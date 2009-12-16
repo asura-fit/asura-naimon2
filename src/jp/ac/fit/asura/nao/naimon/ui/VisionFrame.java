@@ -49,8 +49,10 @@ public class VisionFrame extends NaimonInFrame {
 		cpane.setLayout(layout);
 		cpane.add(imagePanel);
 		cpane.add(houghPanel);
+		houghPanel.setVisible(controlPanel.isHoughOn);
 		cpane.add(controlPanel);
-
+		
+		//houghPanel.setVisible(false);
 		setMinimumSize(layout.preferredLayoutSize(this.getContentPane()));
 		pack();
 	}
@@ -298,7 +300,7 @@ public class VisionFrame extends NaimonInFrame {
 
 		protected boolean isAutoScale = true;
 		protected boolean isBlobOn = true;
-		protected boolean isHoughOn = true;
+		protected boolean isHoughOn = false;
 
 		protected JCheckBox houghOnCheckBox;
 
@@ -320,6 +322,7 @@ public class VisionFrame extends NaimonInFrame {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					isHoughOn = !isHoughOn;
+					houghPanel.setVisible(isHoughOn);
 				}
 			});
 			JCheckBox autoScaleCheckBox = new JCheckBox("自動スケール");
