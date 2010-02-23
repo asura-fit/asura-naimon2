@@ -11,7 +11,9 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Polygon;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -47,7 +49,7 @@ public class FieldFrame extends NaimonInFrame {
 	private static final int WIDTH = Field.FULL_WIDTH;
 	private static final int HEIGHT = Field.FULL_HEIGHT;
 
-	public static final int WOBJ_SIZE = 15;
+	public static final int WOBJ_SIZE = 10;
 	public static final int WOBJ_CF_SIZE = 35;
 	public static final float WOBJ_CF_ALPHA = 0.5f;
 	public static final int OWN_SIZE = 25;
@@ -62,6 +64,7 @@ public class FieldFrame extends NaimonInFrame {
 		return new Polygon(ownXPoints, ownYPoints, ownXPoints.length);
 	}
 
+	public static final Color STRING_COLOR = Color.WHITE;
 	public static final Color BACKGROUND_COLOR = Color.GRAY;
 	public static final Color RED_TEAM_COLOR = Color.RED;
 	public static final Color RED_OWN_COLOR = RED_TEAM_COLOR.brighter();
@@ -91,9 +94,9 @@ public class FieldFrame extends NaimonInFrame {
 
 	private void init(int width, int height) {
 		objs = new EnumMap<WorldObjects, WorldObject>(WorldObjects.class);
-		objs.put(WorldObjects.Ball, new WorldObject());
-		objs.put(WorldObjects.BlueGoal, new WorldObject());
-		objs.put(WorldObjects.YellowGoal, new WorldObject());
+		objs.put(WorldObjects.Ball, new WorldObject(WorldObjects.Ball));
+		objs.put(WorldObjects.BlueGoal, new WorldObject(WorldObjects.BlueGoal));
+		objs.put(WorldObjects.YellowGoal, new WorldObject(WorldObjects.YellowGoal));
 		self = new SelfObject();
 		candidates = new ArrayList<SelfObject>();
 
@@ -122,12 +125,12 @@ public class FieldFrame extends NaimonInFrame {
 
 		// ゴールの色
 		g.setColor(BLUE_GOAL_COLOR);
-		g.fillRect(
+		g.drawRect(
 				Field.LEFT_MARGIN + (Field.WIDTH / 2 - Field.GOAL_WIDTH / 2),
 				Field.TOP_MARGIN - Field.GOAL_HEIGHT, Field.GOAL_WIDTH,
 				Field.GOAL_HEIGHT);
 		g.setColor(RED_GOAL_COLOR);
-		g.fillRect(
+		g.drawRect(
 				Field.LEFT_MARGIN + (Field.WIDTH / 2 - Field.GOAL_WIDTH / 2),
 				Field.TOP_MARGIN + Field.HEIGHT, Field.GOAL_WIDTH,
 				Field.GOAL_HEIGHT);
@@ -195,6 +198,8 @@ public class FieldFrame extends NaimonInFrame {
 		g2.setColor(RED_OWN_COLOR);
 		g2.fill(shape);
 		g2.setTransform(trans_tmp);
+		g.setColor(STRING_COLOR);
+		g.drawString(so.type.name(), x + OWN_SIZE / 2, y + OWN_SIZE / 2);
 	}
 
 	private void drawCandidate(Graphics g, SelfObject so) {
@@ -240,6 +245,9 @@ public class FieldFrame extends NaimonInFrame {
 		g.setColor(c.darker());
 		g.drawArc(x - WOBJ_SIZE / 2, y - WOBJ_SIZE / 2, WOBJ_SIZE, WOBJ_SIZE,
 				0, 360);
+		
+		g.setColor(STRING_COLOR);
+		g.drawString(wo.type.name(), x + WOBJ_SIZE, y + WOBJ_SIZE);
 	}
 
 	@Override
@@ -271,10 +279,6 @@ public class FieldFrame extends NaimonInFrame {
 				wo.x = x;
 				wo.y = y;
 				wo.cf = cf;
-				if (cf > 0) {
-					System.out.println(WorldObjects.values()[type] + " d:" + d
-							+ " h:" + h);
-				}
 				break;
 			case Self:
 				self.x = x;
@@ -347,12 +351,42 @@ public class FieldFrame extends NaimonInFrame {
 			}
 
 			synchronized (fieldImage) {
-				g.drawImage(fieldImage, x, y, drawWidth, drawHeight,
-						BACKGROUND_COLOR, null);
+				if (controlPanel.isAutoScale) {
+					g.drawImage(changSize(fieldImage, drawWidth, drawHeight),
+							x, y, BACKGROUND_COLOR, null);
+				} else {
+					g.drawImage(fieldImage, x, y, BACKGROUND_COLOR, null);
+				}
 			}
 		}
 	}
-
+	
+	private BufferedImage changSize(BufferedImage image, int width, int height) {
+		BufferedImage shrinkImage = new BufferedImage(width, height, image
+				.getType());
+		Graphics2D g2d = shrinkImage.createGraphics();
+		g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION,
+				RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
+//		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+//				RenderingHints.VALUE_ANTIALIAS_ON);
+		g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING,
+				RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+		g2d.setRenderingHint(RenderingHints.KEY_DITHERING,
+				RenderingHints.VALUE_DITHER_ENABLE);
+//		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+//				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g2d.setRenderingHint(RenderingHints.KEY_RENDERING,
+				RenderingHints.VALUE_RENDER_QUALITY);
+		g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+				RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+//		g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS,
+//				RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+//		g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
+//				RenderingHints.VALUE_STROKE_NORMALIZE);
+		g2d.drawImage(image, 0, 0, width, height, null);
+		return shrinkImage;
+	}
+	
 	class ControlPanel extends JPanel {
 
 		protected boolean isAutoScale = true;
@@ -390,14 +424,23 @@ public class FieldFrame extends NaimonInFrame {
 	}
 
 	private static class WorldObject {
+		WorldObjects type;
 		int x;
 		int y;
 		int cf;
+		
+		WorldObject(WorldObjects type) {
+			this.type = type;
+		}
 	}
 
 	private static class SelfObject extends WorldObject {
 		float yaw;
 		float w;
+		
+		SelfObject() {
+			super(WorldObjects.Self);
+		}
 	}
 
 	public enum WorldObjects {
