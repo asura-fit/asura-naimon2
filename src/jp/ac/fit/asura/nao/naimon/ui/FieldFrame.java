@@ -3,14 +3,19 @@
  */
 package jp.ac.fit.asura.nao.naimon.ui;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Polygon;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -26,7 +31,7 @@ import org.w3c.dom.NodeList;
 
 /**
  * @author kilo
- *
+ * 
  */
 public class FieldFrame extends NaimonInFrame {
 
@@ -41,6 +46,33 @@ public class FieldFrame extends NaimonInFrame {
 
 	private static final int WIDTH = Field.FULL_WIDTH;
 	private static final int HEIGHT = Field.FULL_HEIGHT;
+
+	public static final int WOBJ_SIZE = 15;
+	public static final int WOBJ_CF_SIZE = 35;
+	public static final float WOBJ_CF_ALPHA = 0.5f;
+	public static final int OWN_SIZE = 25;
+	public static final double OWN_SHAPE_RATIO = 0.6d;
+
+	public static Shape createOwnShape() {
+		int[] ownXPoints = new int[] { -(int) (OWN_SIZE * (1d / 3d)),
+				(int) (OWN_SIZE * (2d / 3d)), -(int) (OWN_SIZE * (1d / 3d)), };
+		int[] ownYPoints = new int[] {
+				-(int) (OWN_SIZE * (1d / 2d) * OWN_SHAPE_RATIO), 0,
+				(int) (OWN_SIZE * (1d / 2d) * OWN_SHAPE_RATIO), };
+		return new Polygon(ownXPoints, ownYPoints, ownXPoints.length);
+	}
+
+	public static final Color BACKGROUND_COLOR = Color.GRAY;
+	public static final Color RED_TEAM_COLOR = Color.RED;
+	public static final Color RED_OWN_COLOR = RED_TEAM_COLOR.brighter();
+	public static final Color BLUE_TEAM_COLOR = Color.BLUE;
+	public static final Color BLUE_OWN_COLOR = BLUE_TEAM_COLOR.brighter();
+	public static final Color CANDIDATES_COLOR = Color.LIGHT_GRAY;
+	public static final Color BALL_COLOR = Color.ORANGE;
+	public static final Color RED_GOAL_COLOR = Color.YELLOW;
+	public static final Color BLUE_GOAL_COLOR = Color.CYAN;
+	public static final Color FIELD_COLOR = Color.GREEN.darker();
+	public static final Color LINE_COLOR = Color.WHITE;
 
 	public FieldFrame() {
 		init(WIDTH, HEIGHT);
@@ -85,23 +117,23 @@ public class FieldFrame extends NaimonInFrame {
 		g2.setStroke(new BasicStroke(5.0f));
 
 		// Fieldの下地色
-		g.setColor(Color.GREEN.darker());
+		g.setColor(FIELD_COLOR);
 		g.fillRect(0, 0, width, height);
 
 		// ゴールの色
-		g.setColor(Color.CYAN);
+		g.setColor(BLUE_GOAL_COLOR);
 		g.fillRect(
 				Field.LEFT_MARGIN + (Field.WIDTH / 2 - Field.GOAL_WIDTH / 2),
 				Field.TOP_MARGIN - Field.GOAL_HEIGHT, Field.GOAL_WIDTH,
 				Field.GOAL_HEIGHT);
-		g.setColor(Color.YELLOW);
+		g.setColor(RED_GOAL_COLOR);
 		g.fillRect(
 				Field.LEFT_MARGIN + (Field.WIDTH / 2 - Field.GOAL_WIDTH / 2),
 				Field.TOP_MARGIN + Field.HEIGHT, Field.GOAL_WIDTH,
 				Field.GOAL_HEIGHT);
 
 		// Fieldラインの色
-		g.setColor(Color.WHITE);
+		g.setColor(LINE_COLOR);
 		// 上ライン
 		g.drawLine(Field.LEFT_MARGIN, Field.TOP_MARGIN, Field.FULL_WIDTH
 				- Field.RIGHT_MARGIN, Field.TOP_MARGIN);
@@ -147,26 +179,40 @@ public class FieldFrame extends NaimonInFrame {
 		g2.setStroke(defaultStroke);
 	}
 
-	private void drawSelf(Graphics g, Color c, SelfObject so) {
+	private void drawSelf(Graphics g, SelfObject so) {
 		int x = (-so.x / 10 + Field.LEFT_MARGIN + Field.WIDTH / 2);
 		int y = (-so.y / 10 + Field.LEFT_MARGIN + Field.HEIGHT / 2);
 
-		g.setColor(c);
-		g.fillArc(x - 25 / 2, y - 25 / 2, 25, 25, 0, 360);
-		g.setColor(Color.RED);
-		g.drawLine(x, y, x - (int) (20 * Math.sin(so.yaw)), y
-				- (int) (20 * Math.cos(so.yaw)));
+		Shape shape = createOwnShape();
+		Graphics2D g2 = (Graphics2D) g;
+
+		AffineTransform trans_tmp = g2.getTransform();
+		AffineTransform transform = g2.getTransform();
+
+		transform.translate(x, y);
+		transform.rotate(-Math.PI / 2 - so.yaw);
+		g2.setTransform(transform);
+		g2.setColor(RED_OWN_COLOR);
+		g2.fill(shape);
+		g2.setTransform(trans_tmp);
 	}
 
-	private void drawCandidate(Graphics g, Color c, SelfObject so) {
+	private void drawCandidate(Graphics g, SelfObject so) {
 		int x = (-so.x / 10 + Field.LEFT_MARGIN + Field.WIDTH / 2);
 		int y = (-so.y / 10 + Field.LEFT_MARGIN + Field.HEIGHT / 2);
 
-		g.setColor(c);
-		g.fillArc(x - 25 / 2, y - 25 / 2, 25, 25, 0, 360);
-		g.setColor(Color.RED);
-		g.drawLine(x, y, x - (int) (20 * Math.sin(so.yaw)), y
-				- (int) (20 * Math.cos(so.yaw)));
+		Shape shape = createOwnShape();
+		Graphics2D g2 = (Graphics2D) g;
+
+		AffineTransform trans_tmp = g2.getTransform();
+		AffineTransform transform = g2.getTransform();
+
+		transform.translate(x, y);
+		transform.rotate(-Math.PI / 2 - so.yaw);
+		g2.setTransform(transform);
+		g2.setColor(CANDIDATES_COLOR);
+		g2.fill(shape);
+		g2.setTransform(trans_tmp);
 	}
 
 	private void drawObject(Graphics g, Color c, WorldObject wo, SelfObject so) {
@@ -179,11 +225,21 @@ public class FieldFrame extends NaimonInFrame {
 		int sx = (-so.x / 10 + Field.LEFT_MARGIN + Field.WIDTH / 2);
 		int sy = (-so.y / 10 + Field.TOP_MARGIN + Field.HEIGHT / 2);
 
+		Graphics2D g2 = (Graphics2D) g;
+		g2.setColor(c.brighter());
+		Composite comp_temp = g2.getComposite();
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+				WOBJ_CF_ALPHA));
+		g2.fillArc(x - WOBJ_CF_SIZE / 2, y - WOBJ_CF_SIZE / 2, WOBJ_CF_SIZE,
+				WOBJ_CF_SIZE, 0, (int) ((wo.cf / 1000.0) * 360));
+		g2.setComposite(comp_temp);
 		g.setColor(c);
-		g.fillArc(x - 15 / 2, y - 15 / 2, 15, 15, 0, 360);
+		g.fillArc(x - WOBJ_SIZE / 2, y - WOBJ_SIZE / 2, WOBJ_SIZE, WOBJ_SIZE,
+				0, 360);
 		g.drawLine(x, y, sx, sy);
 		g.setColor(c.darker());
-		g.drawArc(x - 15 / 2, y - 15 / 2, 15, 15, 0, 360);
+		g.drawArc(x - WOBJ_SIZE / 2, y - WOBJ_SIZE / 2, WOBJ_SIZE, WOBJ_SIZE,
+				0, 360);
 	}
 
 	@Override
@@ -250,12 +306,14 @@ public class FieldFrame extends NaimonInFrame {
 			drawFieldImage(g);
 			if (controlPanel.isDrawCandidate) {
 				for (SelfObject so : candidates)
-					drawCandidate(g, Color.LIGHT_GRAY, so);
+					drawCandidate(g, so);
 			}
-			drawObject(g, Color.YELLOW, objs.get(WorldObjects.YellowGoal), self);
-			drawObject(g, Color.CYAN, objs.get(WorldObjects.BlueGoal), self);
-			drawObject(g, Color.ORANGE, objs.get(WorldObjects.Ball), self);
-			drawSelf(g, Color.GRAY, self);
+			drawObject(g, RED_GOAL_COLOR, objs.get(WorldObjects.YellowGoal),
+					self);
+			drawObject(g, BLUE_GOAL_COLOR, objs.get(WorldObjects.BlueGoal),
+					self);
+			drawObject(g, BALL_COLOR, objs.get(WorldObjects.Ball), self);
+			drawSelf(g, self);
 			g.dispose();
 		}
 
@@ -271,7 +329,7 @@ public class FieldFrame extends NaimonInFrame {
 
 		@Override
 		protected void paintComponent(Graphics g) {
-			g.setColor(Color.GRAY);
+			g.setColor(BACKGROUND_COLOR);
 			g.fillRect(0, 0, getWidth(), getHeight());
 
 			int drawWidth = fieldImage.getWidth();
@@ -290,7 +348,7 @@ public class FieldFrame extends NaimonInFrame {
 
 			synchronized (fieldImage) {
 				g.drawImage(fieldImage, x, y, drawWidth, drawHeight,
-						Color.BLACK, null);
+						BACKGROUND_COLOR, null);
 			}
 		}
 	}
