@@ -5,8 +5,10 @@ package jp.ac.fit.asura.nao.naimon.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -26,6 +28,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDesktopPane;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -224,7 +227,39 @@ public class NaimonFrame extends JFrame {
 			}
 		});
 		windowMenu.add(item);
-
+		windowMenu.addSeparator();
+		item = new JMenuItem("左右に並べて表示");
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JInternalFrame[] f = desktop.getAllFrames();
+				int width = desktop.getWidth();
+				int height = desktop.getHeight();
+				int wd = width / f.length;
+				for (int i = 0; i < f.length; i++) {
+					f[i].setBounds(i * wd, 0, wd, height);
+				}
+			}
+		});
+		windowMenu.add(item);
+		item = new JMenuItem("マス状に並べて表示");
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JInternalFrame[] f = desktop.getAllFrames();
+				int width = desktop.getWidth();
+				int height = desktop.getHeight();
+				int gy = 2;
+				int gx = Math.round(f.length / (float)gy);
+				int grid_height = height / gy;
+				int grid_width = width / gx;
+				for (int i = 0; i < f.length; i++) {
+					f[i].setBounds((i % gx) * grid_width, (i / gx) * grid_height, grid_width, grid_height);
+				}
+			}
+		});
+		windowMenu.add(item);
+		
 		menubar.add(fileMenu);
 		menubar.add(windowMenu);
 
