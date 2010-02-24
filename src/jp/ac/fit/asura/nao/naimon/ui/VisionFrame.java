@@ -106,19 +106,21 @@ public class VisionFrame extends NaimonInFrame {
 			g.setBackground(new Color(0, 0, 0, 0));
 			g.clearRect(0, 0, width, height);
 
-			NodeList blobs = document.getElementsByTagName("Blobs");
-			for (int i = 0; i < blobs.getLength(); i++) {
-				NodeList blob = (NodeList) blobs.item(i);
-				Element be = (Element) blob;
-				int index = Integer.parseInt(be.getAttribute("colorIndex"));
-				g.setColor(getColorWithIndex(index));
-				for (int j = 0; j < blob.getLength(); j++) {
-					Element e = (Element) blob.item(j);
-					int x = Integer.parseInt(e.getAttribute("xmin"));
-					int y = Integer.parseInt(e.getAttribute("ymin"));
-					int x2 = Integer.parseInt(e.getAttribute("xmax"));
-					int y2 = Integer.parseInt(e.getAttribute("ymax"));
-					g.drawRect(x, y, x2 - x, y2 - y);
+			if (controlPanel.isBlobOn) {
+				NodeList blobs = document.getElementsByTagName("Blobs");
+				for (int i = 0; i < blobs.getLength(); i++) {
+					NodeList blob = (NodeList) blobs.item(i);
+					Element be = (Element) blob;
+					int index = Integer.parseInt(be.getAttribute("colorIndex"));
+					g.setColor(getColorWithIndex(index));
+					for (int j = 0; j < blob.getLength(); j++) {
+						Element e = (Element) blob.item(j);
+						int x = Integer.parseInt(e.getAttribute("xmin"));
+						int y = Integer.parseInt(e.getAttribute("ymin"));
+						int x2 = Integer.parseInt(e.getAttribute("xmax"));
+						int y2 = Integer.parseInt(e.getAttribute("ymax"));
+						g.drawRect(x, y, x2 - x, y2 - y);
+					}
 				}
 			}
 
@@ -127,24 +129,41 @@ public class VisionFrame extends NaimonInFrame {
 			NodeList items = objects.getElementsByTagName("Item");
 			for (int i = 0; i < items.getLength(); i++) {
 				Element e = (Element) items.item(i);
-				NodeList polygon = e.getElementsByTagName("Polygon");
-
-				// VisualObjectを囲むPolygonを表示, 色はどうする?
-				if (polygon.getLength() > 1) {
-					g.setColor(Color.ORANGE);
-					Element first = (Element) polygon.item(0);
-					int firstX, firstY, lastX, lastY;
-					firstX = lastX = Integer.parseInt(first.getAttribute("x"));
-					firstY = lastY = Integer.parseInt(first.getAttribute("y"));
-					for (int j = 1; j < polygon.getLength(); j++) {
-						Element p = (Element) polygon.item(j);
-						int x = Integer.parseInt(p.getAttribute("x"));
-						int y = Integer.parseInt(p.getAttribute("y"));
-						g.drawLine(lastX, lastY, x, y);
-						lastX = x;
-						lastY = y;
+				
+				if (controlPanel.isPolygonOn) {
+					NodeList polygon = e.getElementsByTagName("Polygon");
+					// VisualObjectを囲むPolygonを表示, 色はどうする?
+					if (polygon.getLength() > 1) {
+						g.setColor(Color.ORANGE);
+						Element first = (Element) polygon.item(0);
+						int firstX, firstY, lastX, lastY;
+						firstX = lastX = Integer.parseInt(first
+								.getAttribute("x"));
+						firstY = lastY = Integer.parseInt(first
+								.getAttribute("y"));
+						for (int j = 1; j < polygon.getLength(); j++) {
+							Element p = (Element) polygon.item(j);
+							int x = Integer.parseInt(p.getAttribute("x"));
+							int y = Integer.parseInt(p.getAttribute("y"));
+							g.drawLine(lastX, lastY, x, y);
+							lastX = x;
+							lastY = y;
+						}
+						g.drawLine(lastX, lastY, firstX, firstY);
 					}
-					g.drawLine(lastX, lastY, firstX, firstY);
+				}
+				
+				if (controlPanel.isVoAreaOn) {
+					NodeList areaNode = e.getElementsByTagName("Area");
+					if (areaNode.getLength() > 0) {
+						Element area = (Element) areaNode.item(0);
+						int x = Integer.parseInt(area.getAttribute("x"));
+						int y = Integer.parseInt(area.getAttribute("y"));
+						int w = Integer.parseInt(area.getAttribute("width"));
+						int h = Integer.parseInt(area.getAttribute("height"));
+						g.setColor(Color.MAGENTA);
+						g.drawRect(x, y, w-1, h-1);
+					}
 				}
 			}
 
@@ -287,10 +306,8 @@ public class VisionFrame extends NaimonInFrame {
 				}
 			}
 			// BlobImageを描画
-			if (controlPanel.isBlobOn) {
-				synchronized (blobImage) {
-					g.drawImage(blobImage, x, y, drawWidth, drawHeight, null);
-				}
+			synchronized (blobImage) {
+				g.drawImage(blobImage, x, y, drawWidth, drawHeight, null);
 			}
 		}
 
@@ -299,7 +316,9 @@ public class VisionFrame extends NaimonInFrame {
 	class ControlPanel extends JPanel {
 
 		protected boolean isAutoScale = true;
-		protected boolean isBlobOn = true;
+		protected boolean isBlobOn = false;
+		protected boolean isVoAreaOn = true;
+		protected boolean isPolygonOn = false;
 		protected boolean isHoughOn = false;
 
 		protected JCheckBox houghOnCheckBox;
@@ -308,12 +327,28 @@ public class VisionFrame extends NaimonInFrame {
 			BoxLayout layout = new BoxLayout(this, BoxLayout.X_AXIS);
 			setLayout(layout);
 
-			JCheckBox blobOnCheckBox = new JCheckBox("Blob表示");
+			JCheckBox blobOnCheckBox = new JCheckBox("Blob");
 			blobOnCheckBox.setSelected(isBlobOn);
 			blobOnCheckBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					isBlobOn = !isBlobOn;
+				}
+			});
+			JCheckBox voAreaOnCheckBox = new JCheckBox("Vobj");
+			voAreaOnCheckBox.setSelected(isVoAreaOn);
+			voAreaOnCheckBox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					isVoAreaOn = !isVoAreaOn;
+				}
+			});
+			JCheckBox polygonOnCheckBox = new JCheckBox("Polygon");
+			polygonOnCheckBox.setSelected(isPolygonOn);
+			polygonOnCheckBox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					isPolygonOn = !isPolygonOn;
 				}
 			});
 			houghOnCheckBox = new JCheckBox("Hough表示");
@@ -336,6 +371,8 @@ public class VisionFrame extends NaimonInFrame {
 			});
 
 			add(blobOnCheckBox);
+			add(voAreaOnCheckBox);
+			add(polygonOnCheckBox);
 			add(houghOnCheckBox);
 			add(autoScaleCheckBox);
 

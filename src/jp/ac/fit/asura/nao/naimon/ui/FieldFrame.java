@@ -384,6 +384,7 @@ public class FieldFrame extends NaimonInFrame {
 //		g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
 //				RenderingHints.VALUE_STROKE_NORMALIZE);
 		g2d.drawImage(image, 0, 0, width, height, null);
+		g2d.dispose();
 		return shrinkImage;
 	}
 	
