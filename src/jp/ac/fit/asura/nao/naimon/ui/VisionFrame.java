@@ -229,15 +229,31 @@ public class VisionFrame extends NaimonInFrame {
 		Color color = null;
 		switch (index) {
 		case 0:
+			color = Color.ORANGE.darker();
+			break;
 		case 1:
+			color = Color.CYAN.darker();
+			break;
+		case 2:
+			color = Color.GREEN.darker();
+			break;
 		case 3:
-			color = new Color(255, 0, 255, 255);
+			color = Color.YELLOW.darker();
+			break;
+		case 5:
+			color = Color.BLUE.darker();
+			break;
+		case 6:
+			color = Color.RED.darker();
 			break;
 		case 7:
-			color = new Color(255, 255, 255, 255);
+			color = Color.WHITE;
+			break;
+		case 9:
+			color = Color.BLACK;
 			break;
 		default:
-			color = new Color(255, 0, 255, 255);
+			color = Color.BLACK;
 		}
 		return color;
 	}
