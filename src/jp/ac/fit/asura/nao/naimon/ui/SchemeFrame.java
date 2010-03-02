@@ -7,24 +7,35 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
+import javax.swing.ImageIcon;
 import javax.swing.InputMap;
+import javax.swing.JButton;
 import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.undo.UndoManager;
 
 import org.w3c.dom.Document;
-
 
 /**
  * @author kilo
@@ -33,19 +44,97 @@ import org.w3c.dom.Document;
 public class SchemeFrame extends NaimonInFrame {
 
 	private SchemePanel schemePanel;
+	private JToolBar toolBar;
 
 	public SchemeFrame() {
 		init();
 		schemePanel = new SchemePanel();
+		toolBar = new JToolBar();
+		initToolBar();
 		JScrollPane scrollPane = new JScrollPane(schemePanel);
-		
+
 		Container cpane = this.getContentPane();
 		cpane.setLayout(new BorderLayout());
+		cpane.add(toolBar, BorderLayout.NORTH);
 		cpane.add(scrollPane, BorderLayout.CENTER);
 	}
 
 	private void init() {
 		setTitle(this.getName());
+	}
+
+	private static final String RES_PATH = "/jp/ac/fit/asura/nao/naimon/resource/icon/";
+	private JButton newButton;
+	private JButton loadButton;
+	private JButton saveButton;
+	private JButton redoButton;
+	private JButton undoButton;
+	private JButton evalButton;
+	private JButton evalAllButton;
+
+	private void initToolBar() {
+		newButton = createButton("page.png");
+		newButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				schemePanel.clear();
+			}
+		});
+		loadButton = createButton("open.gif");
+		loadButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				schemePanel.loadfile();
+			}
+		});
+		saveButton = createButton("disk.png");
+		saveButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				schemePanel.savefile();
+			}
+		});
+		redoButton = createButton("arrow_right.png");
+		redoButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				schemePanel.redo();
+			}
+		});
+		undoButton = createButton("arrow_left.png");
+		undoButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				schemePanel.undo();
+			}
+		});
+		evalButton = createButton("control_end.png");
+		evalButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				schemePanel.evaluateCommand();
+			}
+		});
+		evalAllButton = createButton("control_play.png");
+		evalAllButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				schemePanel.evaluateAllCommand();
+			}
+		});
+
+		toolBar.add(newButton);
+		toolBar.add(loadButton);
+		toolBar.add(saveButton);
+		toolBar.addSeparator();
+		toolBar.add(undoButton);
+		toolBar.add(redoButton);
+		toolBar.addSeparator();
+		toolBar.add(evalButton);
+		toolBar.add(evalAllButton);
+	}
+
+	private JButton createButton(String filename) {
+		JButton button = new JButton(loadIcon(filename));
+		button.setBorderPainted(false);
+		return button;
+	}
+
+	private ImageIcon loadIcon(String filename) {
+		return new ImageIcon(getClass().getResource(RES_PATH + filename));
 	}
 
 	@Override
@@ -88,6 +177,7 @@ public class SchemeFrame extends NaimonInFrame {
 			addMouseListener(listener);
 			initActions();
 			initPopupMenu();
+
 			setPreferredSize(new Dimension(320, 240));
 		}
 
@@ -169,10 +259,16 @@ public class SchemeFrame extends NaimonInFrame {
 				undoAction.putValue(Action.NAME, undoManager
 						.getUndoPresentationName());
 			}
+			if (undoButton != null) {
+				undoButton.setEnabled(undoManager.canUndo());
+			}
 			if (redoAction != null) {
 				redoAction.setEnabled(undoManager.canRedo());
 				redoAction.putValue(Action.NAME, undoManager
 						.getRedoPresentationName());
+			}
+			if (redoButton != null) {
+				redoButton.setEnabled(undoManager.canRedo());
 			}
 		}
 
@@ -186,30 +282,7 @@ public class SchemeFrame extends NaimonInFrame {
 			}
 
 			public void actionPerformed(java.awt.event.ActionEvent e) {
-				String selectedText = getSelectedText();
-
-				if (selectedText == null || selectedText.length() <= 0) {
-					int curPos = getCaretPosition();
-					try {
-						javax.swing.text.Document doc = getDocument();
-						int elemIndex = doc.getDefaultRootElement()
-								.getElementIndex(curPos);
-						javax.swing.text.Element elem = doc
-								.getDefaultRootElement().getElement(elemIndex);
-						int endOffset = elem.getEndOffset();
-						int startOffset = elem.getStartOffset();
-						endOffset = (endOffset > doc.getLength() ? doc
-								.getLength() : endOffset);
-						selectedText = doc.getText(startOffset, endOffset
-								- startOffset);
-					} catch (Exception ex) {
-					}
-				}
-
-				if (selectedText != null && selectedText.length() > 0) {
-					sendCommands(selectedText);
-				}
-
+				evaluateCommand();
 			}
 		}
 
@@ -223,10 +296,7 @@ public class SchemeFrame extends NaimonInFrame {
 			}
 
 			public void actionPerformed(ActionEvent e) {
-				String allCommands = getText();
-				if (allCommands != null && allCommands.length() > 0) {
-					sendCommands(allCommands);
-				}
+				evaluateAllCommand();
 			}
 		}
 
@@ -241,12 +311,7 @@ public class SchemeFrame extends NaimonInFrame {
 			}
 
 			public void actionPerformed(ActionEvent e) {
-				try {
-					undoManager.undo();
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-				updateUndoRedoState();
+				undo();
 			}
 		}
 
@@ -261,12 +326,115 @@ public class SchemeFrame extends NaimonInFrame {
 			}
 
 			public void actionPerformed(ActionEvent e) {
+				redo();
+			}
+		}
+
+		private void evaluateCommand() {
+			String selectedText = getSelectedText();
+
+			if (selectedText == null || selectedText.length() <= 0) {
+				int curPos = getCaretPosition();
 				try {
-					undoManager.redo();
+					javax.swing.text.Document doc = getDocument();
+					int elemIndex = doc.getDefaultRootElement()
+							.getElementIndex(curPos);
+					javax.swing.text.Element elem = doc.getDefaultRootElement()
+							.getElement(elemIndex);
+					int endOffset = elem.getEndOffset();
+					int startOffset = elem.getStartOffset();
+					endOffset = (endOffset > doc.getLength() ? doc.getLength()
+							: endOffset);
+					selectedText = doc.getText(startOffset, endOffset
+							- startOffset);
 				} catch (Exception ex) {
-					ex.printStackTrace();
 				}
-				updateUndoRedoState();
+			}
+
+			if (selectedText != null && selectedText.length() > 0) {
+				sendCommands(selectedText);
+			}
+		}
+
+		private void evaluateAllCommand() {
+			String allCommands = getText();
+			if (allCommands != null && allCommands.length() > 0) {
+				sendCommands(allCommands);
+			}
+		}
+
+		private void redo() {
+			try {
+				undoManager.redo();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			updateUndoRedoState();
+		}
+
+		private void undo() {
+			try {
+				undoManager.undo();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			updateUndoRedoState();
+		}
+
+		private void clear() {
+			setText("");
+		}
+
+		private void savefile() {
+			JFileChooser filechooser = new JFileChooser();
+			int selected = filechooser.showSaveDialog(this);
+			if (selected == JFileChooser.APPROVE_OPTION) {
+				try {
+					String text = getText();
+					final FileOutputStream fo = new FileOutputStream(
+							filechooser.getSelectedFile());
+					final PrintStream ps = new PrintStream(fo);
+					ps.print(text);
+					ps.close();
+					fo.close();
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else if (selected == JFileChooser.CANCEL_OPTION) {
+			} else if (selected == JFileChooser.ERROR_OPTION) {
+			}
+
+		}
+
+		private void loadfile() {
+			JFileChooser filechooser = new JFileChooser();
+			int selected = filechooser.showOpenDialog(this);
+			if (selected == JFileChooser.APPROVE_OPTION) {
+				try {
+					String text = "";
+					final FileInputStream fi = new FileInputStream(filechooser
+							.getSelectedFile());
+					final BufferedReader br = new BufferedReader(
+							new InputStreamReader(fi));
+					String str = br.readLine();
+					while (str != null) {
+						text += str + "\n";
+						str = br.readLine();
+					}
+
+					br.close();
+					fi.close();
+
+					setText(text);
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else if (selected == JFileChooser.CANCEL_OPTION) {
+			} else if (selected == JFileChooser.ERROR_OPTION) {
 			}
 		}
 
@@ -292,8 +460,8 @@ public class SchemeFrame extends NaimonInFrame {
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				if (e.isPopupTrigger() == true) {
-	                popupMenu.show(SchemePanel.this, e.getX(), e.getY());
-	            }
+					popupMenu.show(SchemePanel.this, e.getX(), e.getY());
+				}
 			}
 
 			@Override
