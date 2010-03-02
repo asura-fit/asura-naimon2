@@ -24,7 +24,7 @@
 	<target name="jar">
 		<copy todir="${classdir}" overwrite="true">
 			<fileset dir="${srcdir}">
-				<include name="**/resource/*"/>
+				<include name="**/resource/**"/>
 			</fileset>
 		</copy>
 		<jar basedir="${classdir}" jarfile="${jarfile}" compress="true">

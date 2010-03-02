@@ -43,14 +43,26 @@ import org.w3c.dom.Document;
  */
 public class SchemeFrame extends NaimonInFrame {
 
+	private static final String RES_PATH = "/jp/ac/fit/asura/nao/naimon/resource/icon/";
+	private static final String NEW_BUTTON_TIP_TEXT = "new";
+	private static final String LOAD_BUTTON_TIP_TEXT = "load";
+	private static final String SAVE_BUTTON_TIP_TEXT = "save";
 	private SchemePanel schemePanel;
 	private JToolBar toolBar;
+	private JButton newButton;
+	private JButton loadButton;
+	private JButton saveButton;
+	private JButton redoButton;
+	private JButton undoButton;
+	private JButton evalButton;
+	private JButton evalAllButton;
 
 	public SchemeFrame() {
 		init();
 		schemePanel = new SchemePanel();
 		toolBar = new JToolBar();
 		initToolBar();
+		schemePanel.updateUndoRedoState();
 		JScrollPane scrollPane = new JScrollPane(schemePanel);
 
 		Container cpane = this.getContentPane();
@@ -63,53 +75,51 @@ public class SchemeFrame extends NaimonInFrame {
 		setTitle(this.getName());
 	}
 
-	private static final String RES_PATH = "/jp/ac/fit/asura/nao/naimon/resource/icon/";
-	private JButton newButton;
-	private JButton loadButton;
-	private JButton saveButton;
-	private JButton redoButton;
-	private JButton undoButton;
-	private JButton evalButton;
-	private JButton evalAllButton;
-
 	private void initToolBar() {
 		newButton = createButton("page.png");
+		newButton.setToolTipText(NEW_BUTTON_TIP_TEXT);
 		newButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				schemePanel.clear();
 			}
 		});
 		loadButton = createButton("open.gif");
+		loadButton.setToolTipText(LOAD_BUTTON_TIP_TEXT);
 		loadButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				schemePanel.loadfile();
 			}
 		});
 		saveButton = createButton("disk.png");
+		saveButton.setToolTipText(SAVE_BUTTON_TIP_TEXT);
 		saveButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				schemePanel.savefile();
 			}
 		});
 		redoButton = createButton("arrow_right.png");
+		redoButton.setToolTipText(SchemePanel.REDO_ACTION_NAME);
 		redoButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				schemePanel.redo();
 			}
 		});
 		undoButton = createButton("arrow_left.png");
+		undoButton.setToolTipText(SchemePanel.UNDO_ACTION_NAME);
 		undoButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				schemePanel.undo();
 			}
 		});
 		evalButton = createButton("control_end.png");
+		evalButton.setToolTipText(SchemePanel.EVALUATE_ACTION_NAME);
 		evalButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				schemePanel.evaluateCommand();
 			}
 		});
 		evalAllButton = createButton("control_play.png");
+		evalAllButton.setToolTipText(SchemePanel.EVALUATE_ALL_ACTION_NAME);
 		evalAllButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				schemePanel.evaluateAllCommand();
