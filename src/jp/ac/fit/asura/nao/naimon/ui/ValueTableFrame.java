@@ -11,9 +11,9 @@ import java.awt.Dimension;
 import java.util.BitSet;
 import java.util.Vector;
 
-import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -24,7 +24,7 @@ import org.w3c.dom.NodeList;
 
 /**
  * @author kilo
- *
+ * 
  */
 public class ValueTableFrame extends NaimonInFrame {
 
@@ -34,18 +34,33 @@ public class ValueTableFrame extends NaimonInFrame {
 
 	public ValueTableFrame() {
 		init();
+		JSplitPane splitPane = new JSplitPane(); // 全体
+		JSplitPane splitObj = new JSplitPane(); // vo, wo 用
+
 		voValuePanel = new VisualObjectValuePanel();
 		woValuePanel = new WorldObjectValuePanel();
 		valuePanel = new ValuePanel();
 
 		Container cpane = this.getContentPane();
-		BoxLayout layout = new BoxLayout(cpane, BoxLayout.Y_AXIS);
-		cpane.setLayout(layout);
-		cpane.add(voValuePanel);
-		cpane.add(woValuePanel);
-		cpane.add(valuePanel);
+		cpane.setLayout(new BorderLayout());
 
-		setPreferredSize(layout.preferredLayoutSize(this.getContentPane()));
+		// 上下に分割
+		splitObj.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		// 仕切り線の移動が終わってから再描画
+		splitObj.setContinuousLayout(false);
+		splitPane.setContinuousLayout(false);
+		// 展開, 収納用ボタン
+		splitObj.setOneTouchExpandable(true);
+		splitPane.setOneTouchExpandable(true);
+
+		splitObj.setLeftComponent(voValuePanel);
+		splitObj.setRightComponent(woValuePanel);
+		splitPane.setLeftComponent(splitObj);
+		splitPane.setRightComponent(valuePanel);
+
+		cpane.add(new JScrollPane(splitPane), BorderLayout.CENTER);
+
 		pack();
 	}
 
@@ -153,7 +168,7 @@ public class ValueTableFrame extends NaimonInFrame {
 			this.setLayout(new BorderLayout());
 			add(scroll, BorderLayout.CENTER);
 
-			setPreferredSize(new Dimension(480, 120));
+			setPreferredSize(new Dimension(120, 60));
 		}
 	}
 
@@ -175,7 +190,7 @@ public class ValueTableFrame extends NaimonInFrame {
 			this.setLayout(new BorderLayout());
 			add(scroll, BorderLayout.CENTER);
 
-			setPreferredSize(new Dimension(480, 120));
+			setPreferredSize(new Dimension(120, 60));
 		}
 	}
 
@@ -193,7 +208,7 @@ public class ValueTableFrame extends NaimonInFrame {
 			this.setLayout(new BorderLayout());
 			add(scroll, BorderLayout.CENTER);
 
-			setPreferredSize(new Dimension(480, 240));
+			setPreferredSize(new Dimension(120, 60));
 		}
 	}
 
