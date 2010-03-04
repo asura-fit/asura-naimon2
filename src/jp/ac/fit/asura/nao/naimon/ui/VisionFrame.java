@@ -13,11 +13,14 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.zip.InflaterInputStream;
 
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -51,8 +54,7 @@ public class VisionFrame extends NaimonInFrame {
 		cpane.add(houghPanel);
 		houghPanel.setVisible(controlPanel.isHoughOn);
 		cpane.add(controlPanel);
-		
-		//houghPanel.setVisible(false);
+
 		setMinimumSize(layout.preferredLayoutSize(this.getContentPane()));
 		pack();
 	}
@@ -129,7 +131,7 @@ public class VisionFrame extends NaimonInFrame {
 			NodeList items = objects.getElementsByTagName("Item");
 			for (int i = 0; i < items.getLength(); i++) {
 				Element e = (Element) items.item(i);
-				
+
 				if (controlPanel.isPolygonOn) {
 					NodeList polygon = e.getElementsByTagName("Polygon");
 					// VisualObjectを囲むPolygonを表示, 色はどうする?
@@ -152,7 +154,7 @@ public class VisionFrame extends NaimonInFrame {
 						g.drawLine(lastX, lastY, firstX, firstY);
 					}
 				}
-				
+
 				if (controlPanel.isVoAreaOn) {
 					NodeList areaNode = e.getElementsByTagName("Area");
 					if (areaNode.getLength() > 0) {
@@ -162,7 +164,7 @@ public class VisionFrame extends NaimonInFrame {
 						int w = Integer.parseInt(area.getAttribute("width"));
 						int h = Integer.parseInt(area.getAttribute("height"));
 						g.setColor(Color.MAGENTA);
-						g.drawRect(x, y, w-1, h-1);
+						g.drawRect(x, y, w - 1, h - 1);
 					}
 				}
 			}
@@ -200,6 +202,12 @@ public class VisionFrame extends NaimonInFrame {
 
 		// パネルを再描画
 		imagePanel.repaint();
+	}
+
+	public void addRequestParam(Hashtable<String, String> params) {
+		params.put("blob_threshold", String.valueOf(controlPanel
+				.getBlobThreshold()));
+		params.put("blob", String.valueOf(controlPanel.getBlobThreshold()));
 	}
 
 	private void drawHough(byte[] houghPlane, int hough_width, int hough_height) {
@@ -338,6 +346,7 @@ public class VisionFrame extends NaimonInFrame {
 		protected boolean isHoughOn = false;
 
 		protected JCheckBox houghOnCheckBox;
+		private JSpinner blobThSpinner;
 
 		public ControlPanel() {
 			BoxLayout layout = new BoxLayout(this, BoxLayout.X_AXIS);
@@ -367,7 +376,7 @@ public class VisionFrame extends NaimonInFrame {
 					isPolygonOn = !isPolygonOn;
 				}
 			});
-			houghOnCheckBox = new JCheckBox("Hough表示");
+			houghOnCheckBox = new JCheckBox("Hough");
 			houghOnCheckBox.setSelected(isHoughOn);
 			houghOnCheckBox.addActionListener(new ActionListener() {
 				@Override
@@ -386,13 +395,25 @@ public class VisionFrame extends NaimonInFrame {
 				}
 			});
 
+			SpinnerNumberModel model = new SpinnerNumberModel(50, 1, 9999, 1);
+
+			blobThSpinner = new JSpinner(model);
+			blobThSpinner.setPreferredSize(new Dimension(45, blobThSpinner
+					.getPreferredSize().height));
+
 			add(blobOnCheckBox);
+			add(blobThSpinner);
 			add(voAreaOnCheckBox);
 			add(polygonOnCheckBox);
 			add(houghOnCheckBox);
 			add(autoScaleCheckBox);
 
 			setMaximumSize(layout.preferredLayoutSize(this));
+		}
+
+		public int getBlobThreshold() {
+			Integer value = (Integer) blobThSpinner.getModel().getValue();
+			return value.intValue();
 		}
 
 	}

@@ -97,6 +97,8 @@ public class FieldFrame extends NaimonInFrame {
 		objs.put(WorldObjects.Ball, new WorldObject(WorldObjects.Ball));
 		objs.put(WorldObjects.BlueGoal, new WorldObject(WorldObjects.BlueGoal));
 		objs.put(WorldObjects.YellowGoal, new WorldObject(WorldObjects.YellowGoal));
+		objs.put(WorldObjects.RedNao, new WorldObject(WorldObjects.RedNao));
+		objs.put(WorldObjects.BlueNao, new WorldObject(WorldObjects.BlueNao));
 		self = new SelfObject();
 		candidates = new ArrayList<SelfObject>();
 
@@ -275,6 +277,8 @@ public class FieldFrame extends NaimonInFrame {
 			case Ball:
 			case BlueGoal:
 			case YellowGoal:
+			case RedNao:
+			case BlueNao:
 				WorldObject wo = objs.get(WorldObjects.values()[type]);
 				wo.x = x;
 				wo.y = y;
@@ -316,6 +320,8 @@ public class FieldFrame extends NaimonInFrame {
 					self);
 			drawObject(g, BLUE_GOAL_COLOR, objs.get(WorldObjects.BlueGoal),
 					self);
+			drawObject(g, RED_TEAM_COLOR, objs.get(WorldObjects.RedNao), self);
+			drawObject(g, BLUE_TEAM_COLOR, objs.get(WorldObjects.BlueNao), self);
 			drawObject(g, BALL_COLOR, objs.get(WorldObjects.Ball), self);
 			drawSelf(g, self);
 			g.dispose();

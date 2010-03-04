@@ -4,6 +4,7 @@
 package jp.ac.fit.asura.nao.naimon.ui;
 
 import java.awt.Dimension;
+import java.util.Hashtable;
 
 import javax.swing.JInternalFrame;
 
@@ -36,6 +37,9 @@ public abstract class NaimonInFrame extends JInternalFrame implements
 	public void setConnector(NaimonConnector connector) {
 		this.connector = connector;
 		connector.addUpdateListener(this);
+	}
+	
+	public void addRequestParam(Hashtable<String, String> params) {
 	}
 
 	public void connected(String host, int port) {

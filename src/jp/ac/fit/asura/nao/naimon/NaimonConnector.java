@@ -9,6 +9,8 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 import javax.swing.event.EventListenerList;
@@ -41,8 +43,11 @@ public class NaimonConnector implements Runnable {
 
 	private boolean connected = false;
 
+	private Hashtable<String, String> requestParams;
+
 	public NaimonConnector() {
 		listenerList = new EventListenerList();
+		requestParams = new Hashtable<String, String>();
 		cThread = new Thread(this);
 
 		host = conf.get("naimon.connect.last.host", "localhost");
@@ -80,6 +85,9 @@ public class NaimonConnector implements Runnable {
 		while (true) {
 
 			if (connected) {
+				requestParams.clear();
+				fireAddRequestParam(requestParams);
+
 				DocumentBuilderFactory dbf = DocumentBuilderFactory
 						.newInstance();
 				DocumentBuilder builder = null;
@@ -92,8 +100,21 @@ public class NaimonConnector implements Runnable {
 					continue;
 				}
 				try {
+					String params = "";
+					if (requestParams.size() > 0) {
+						params += "?";
+						for (Iterator<String> iterator = requestParams.keySet()
+								.iterator(); iterator.hasNext();) {
+							String key = iterator.next();
+							params += key + "=" + requestParams.get(key);
+							if (iterator.hasNext()) {
+								params += "&";
+							}
+						}
+					}
+					log.fine("params:" + params);
 					document = builder.parse("http://" + host + ":" + port
-							+ NAIMON_PREFIX);
+							+ NAIMON_PREFIX + params);
 				} catch (SAXException e) {
 					e.printStackTrace();
 					disconnect();
@@ -123,6 +144,13 @@ public class NaimonConnector implements Runnable {
 			}
 		}
 
+	}
+
+	private void fireAddRequestParam(Hashtable<String, String> params) {
+		for (NaimonEventListener listener : listenerList
+				.getListeners(NaimonEventListener.class)) {
+			listener.addRequestParam(params);
+		}
 	}
 
 	private void fireUpdate(Document doc) {
