@@ -266,7 +266,7 @@ public class VisionFrame extends NaimonInFrame {
 		return color;
 	}
 
-	private void inflateWithBase64(String src, byte[] dst) {
+	public static void inflateWithBase64(String src, byte[] dst) {
 		ByteArrayInputStream bin = new ByteArrayInputStream(Base64.decode(src));
 		InflaterInputStream iin = new InflaterInputStream(bin);
 

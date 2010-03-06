@@ -42,7 +42,7 @@ public class SimpleTelnet {
 			input = new BufferedInputStream(socket.getInputStream());
 			negotiation();
 		} catch (IOException e) {
-			e.printStackTrace();
+			// e.printStackTrace();
 			return false;
 		}
 		return true;

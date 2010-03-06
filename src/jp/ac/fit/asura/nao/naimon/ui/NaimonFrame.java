@@ -41,7 +41,7 @@ import jp.ac.fit.asura.nao.naimon.NaimonConnector;
 
 /**
  * @author kilo
- *
+ * 
  */
 public class NaimonFrame extends JFrame {
 	private static final Logger log = Logger.getLogger(NaimonFrame.class
@@ -83,6 +83,7 @@ public class NaimonFrame extends JFrame {
 		frames.add(new LogFrame());
 		frames.add(new ValueTableFrame());
 		frames.add(new SchemeFrame());
+		frames.add(new CameraImageFrame());
 
 		for (NaimonInFrame f : frames) {
 			initInFrame(f);
@@ -250,16 +251,17 @@ public class NaimonFrame extends JFrame {
 				int width = desktop.getWidth();
 				int height = desktop.getHeight();
 				int gy = 2;
-				int gx = Math.round(f.length / (float)gy);
+				int gx = Math.round(f.length / (float) gy);
 				int grid_height = height / gy;
 				int grid_width = width / gx;
 				for (int i = 0; i < f.length; i++) {
-					f[i].setBounds((i % gx) * grid_width, (i / gx) * grid_height, grid_width, grid_height);
+					f[i].setBounds((i % gx) * grid_width, (i / gx)
+							* grid_height, grid_width, grid_height);
 				}
 			}
 		});
 		windowMenu.add(item);
-		
+
 		menubar.add(fileMenu);
 		menubar.add(windowMenu);
 

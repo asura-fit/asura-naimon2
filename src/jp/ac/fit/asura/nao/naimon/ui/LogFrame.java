@@ -51,7 +51,7 @@ public class LogFrame extends NaimonInFrame implements
 	public void connected(String host, int port) {
 		telnet = new SimpleTelnet(host, TELNET_PORT);
 		if (!telnet.open()) {
-			logPanel.appendString(host + ":" + TELNET_PORT + "に接続できませんでした");
+			logPanel.appendString(host + ":" + TELNET_PORT + "に接続できませんでした\n");
 		} else {
 			telnet.addListener(this);
 			telnet.startproc();
