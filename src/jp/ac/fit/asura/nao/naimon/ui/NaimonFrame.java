@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDesktopPane;
 import javax.swing.JDialog;
@@ -271,7 +272,7 @@ public class NaimonFrame extends JFrame {
 	private void showConnectDialog() {
 		final JDialog dialog = new JDialog(this, "新規接続", true);
 		JPanel panel = new JPanel();
-		panel.setLayout(new GridLayout(2, 1));
+		panel.setLayout(new GridLayout(3, 1));
 
 		String str;
 		str = conf.get("naimon.connect.hosts", "localhost");
@@ -295,6 +296,12 @@ public class NaimonFrame extends JFrame {
 		panel.add(p);
 
 		p = new JPanel();
+		int maxtries = conf.get("connect.autoreconnect.maxtries", 5);
+		final JCheckBox reconnectCheck = new JCheckBox("自動再接続", maxtries > 0);
+		p.add(reconnectCheck);
+		panel.add(p);
+
+		p = new JPanel();
 		JButton btn = new JButton("接続");
 		btn.addActionListener(new ActionListener() {
 			@Override
@@ -313,6 +320,8 @@ public class NaimonFrame extends JFrame {
 					//
 					conf.set("naimon.connect.last.host", host);
 					conf.set("naimon.connect.last.port", port);
+					conf.set("connect.autoreconnect.maxtries", reconnectCheck
+							.isSelected() ? 5 : 0);
 					int p = Integer.parseInt(port);
 					connector.connect(host, p);
 				}

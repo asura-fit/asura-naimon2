@@ -72,6 +72,8 @@ final public class NaimonConfig {
 		this.conf.setProperty("naimon.connect.ports", "8080");
 		this.conf.setProperty("connect.last.host", "localhost");
 		this.conf.setProperty("connect.last.port", "8080");
+		this.conf.setProperty("connect.autoreconnect.maxtries", "5");
+		this.conf.setProperty("connect.autoreconnect.interval", "10");
 
 		this.conf.setProperty("naimon.window.backimage", getClass()
 				.getResource(
@@ -104,6 +106,17 @@ final public class NaimonConfig {
 		this.conf.setProperty("naimon.frame.Log.height", "190");
 	}
 
+	public boolean get(String key, boolean defaultValue) {
+		String value = this.conf.getProperty(key);
+		if (value != null) {
+			return Boolean.parseBoolean(value);
+		}
+		log.config("key:" + key + " use default value.");
+		this.conf.setProperty(key, String.valueOf(defaultValue));
+		save();
+		return defaultValue;
+	}
+
 	public int get(String key, int defaultValue) {
 		String value = this.conf.getProperty(key);
 		if (value != null) {
@@ -124,6 +137,11 @@ final public class NaimonConfig {
 		this.conf.setProperty(key, defaultValue);
 		save();
 		return defaultValue;
+	}
+
+	public void set(String key, boolean value) {
+		this.conf.setProperty(key, String.valueOf(value));
+		save();
 	}
 
 	public void set(String key, int value) {

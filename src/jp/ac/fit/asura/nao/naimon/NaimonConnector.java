@@ -18,10 +18,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import jp.ac.fit.asura.nao.naimon.event.NaimonEventListener;
+
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-
-import jp.ac.fit.asura.nao.naimon.event.NaimonEventListener;
 
 /**
  * @author kilo
@@ -43,6 +43,9 @@ public class NaimonConnector implements Runnable {
 
 	private boolean connected = false;
 
+	private long lastReconnect;
+	private int reconnectCount;
+
 	private Hashtable<String, String> requestParams;
 
 	public NaimonConnector() {
@@ -52,23 +55,33 @@ public class NaimonConnector implements Runnable {
 
 		host = conf.get("naimon.connect.last.host", "localhost");
 		port = conf.get("naimon.connect.last.port", 8080);
+		reconnectCount = conf.get("connect.autoreconnect.maxtries", 5);
 
 		cThread.start();
 	}
 
 	public void connect(String host, int port) {
 		if (connected) {
-			disconnect();
+			doDisconnect();
 		}
 		this.host = host;
 		this.port = port;
+		reconnectCount = conf.get("connect.autoreconnect.maxtries", 5);
+		doConnect();
+	}
 
+	private void doConnect() {
 		log.info("connect to " + host + ":" + port);
 		connected = true;
 		fireConnected();
 	}
 
 	public void disconnect() {
+		reconnectCount = conf.get("connect.autoreconnect.maxtries", 5);
+		doDisconnect();
+	}
+
+	private void doDisconnect() {
 		log.info(host + ":" + port + " disconnected.");
 		connected = false;
 		fireDisconnected();
@@ -83,6 +96,21 @@ public class NaimonConnector implements Runnable {
 		log.fine("thread start");
 
 		while (true) {
+			int reconnectMaxTries = conf.get("connect.autoreconnect.maxtries",
+					5);
+			int reconnectInterval = conf.get("connect.autoreconnect.interval",
+					10);
+
+			if (!connected && reconnectCount < reconnectMaxTries) {
+				if (lastReconnect + reconnectInterval * 1000 < System
+						.currentTimeMillis()) {
+					doConnect();
+					reconnectCount++;
+					lastReconnect = System.currentTimeMillis();
+					log.info("自動再接続を試行します... " + reconnectCount + "/"
+							+ reconnectMaxTries);
+				}
+			}
 
 			if (connected) {
 				requestParams.clear();
@@ -96,7 +124,7 @@ public class NaimonConnector implements Runnable {
 					builder = dbf.newDocumentBuilder();
 				} catch (ParserConfigurationException e) {
 					e.printStackTrace();
-					disconnect();
+					doDisconnect();
 					continue;
 				}
 				try {
@@ -117,23 +145,23 @@ public class NaimonConnector implements Runnable {
 							+ NAIMON_PREFIX + params);
 				} catch (SAXException e) {
 					e.printStackTrace();
-					disconnect();
+					doDisconnect();
 					continue;
 				} catch (IllegalArgumentException e) {
 					log.warning("接続できませんでした。接続先の指定がおかしいかもです。");
-					disconnect();
+					doDisconnect();
 					continue;
 				} catch (SocketException e) {
 					log.warning("接続できませんでした。接続先が正しくないかもしれません。");
-					disconnect();
+					doDisconnect();
 					continue;
 				} catch (IOException e) {
 					e.printStackTrace();
 					log.warning("データを取得できませんでした。入出力エラーです。");
-					disconnect();
+					doDisconnect();
 					continue;
 				}
-
+				reconnectCount = 0;
 				fireUpdate(document);
 			}
 
