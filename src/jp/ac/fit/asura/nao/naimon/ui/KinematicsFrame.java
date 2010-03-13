@@ -7,6 +7,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.StringWriter;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,14 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -205,7 +214,67 @@ public class KinematicsFrame extends NaimonInFrame {
 
 	private Element calculateInverse(String chain, float x, float y, float z,
 			float pitch, float yaw, float roll, float[] weights) {
-		return null;
+		DocumentBuilderFactory dbfactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder docbuilder = null;
+		Document document = null;
+		try {
+			docbuilder = dbfactory.newDocumentBuilder();
+			document = docbuilder.newDocument();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
+
+		// ルートノードを作成
+		Element root = document.createElement("Kinematics");
+		document.appendChild(root);
+
+		Element ikElement = document.createElement("ProcessIK");
+
+		Element fsElement = document.createElement("FrameState");
+		fsElement.setAttribute("name", chain);
+		Element posElement = document.createElement("position");
+		Element rotElement = document.createElement("rotation");
+
+		posElement.setAttribute("x", Float.toString(x));
+		posElement.setAttribute("y", Float.toString(y));
+		posElement.setAttribute("z", Float.toString(z));
+		rotElement.setAttribute("pitch", Float.toString(pitch));
+		rotElement.setAttribute("yaw", Float.toString(yaw));
+		rotElement.setAttribute("roll", Float.toString(roll));
+
+		fsElement.appendChild(posElement);
+		fsElement.appendChild(rotElement);
+		ikElement.appendChild(fsElement);
+
+		Element weightElement = document.createElement("WeightVector");
+		weightElement.setAttribute("x", Float.toString(weights[0]));
+		weightElement.setAttribute("y", Float.toString(weights[1]));
+		weightElement.setAttribute("z", Float.toString(weights[2]));
+		weightElement.setAttribute("pitch", Float.toString(weights[3]));
+		weightElement.setAttribute("yaw", Float.toString(weights[4]));
+		weightElement.setAttribute("roll", Float.toString(weights[5]));
+
+		ikElement.appendChild(weightElement);
+
+		root.appendChild(ikElement);
+
+		TransformerFactory tfactory = TransformerFactory.newInstance();
+		Transformer transformer = null;
+		StringWriter sw = new StringWriter();
+		try {
+			transformer = tfactory.newTransformer();
+			transformer
+					.transform(new DOMSource(document), new StreamResult(sw));
+		} catch (TransformerException e) {
+			e.printStackTrace();
+		}
+
+		Document result = connector.sendXML("/kinematics", sw.toString());
+
+		NodeList list = result.getElementsByTagName("ResultIK");
+		if (list.getLength() == 0)
+			return null;
+		return (Element) list.item(0);
 	}
 
 	class ControlPanel extends JPanel {
@@ -238,7 +307,7 @@ public class KinematicsFrame extends NaimonInFrame {
 			});
 			add(forwardButton);
 
-			final JTextField weightsField = new JTextField("1 1 1 1 1 1");
+			final JTextField weightsField = new JTextField("0.5 0.5 0.5 1 1 1");
 			JButton invButton = new JButton("InverseK");
 			invButton.addActionListener(new ActionListener() {
 				@Override

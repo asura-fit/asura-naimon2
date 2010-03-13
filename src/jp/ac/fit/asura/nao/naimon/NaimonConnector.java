@@ -1,13 +1,17 @@
 /**
- * 
+ *
  */
 package jp.ac.fit.asura.nao.naimon;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -25,16 +29,18 @@ import org.xml.sax.SAXException;
 
 /**
  * @author kilo
- * 
+ *
  */
 public class NaimonConnector implements Runnable {
 	private static final Logger log = Logger.getLogger(NaimonConnector.class
 			.toString());
+
 	private static final NaimonConfig conf = NaimonConfig.getInstance();
 
 	private static final String NAIMON_PREFIX = "/naimon2";
 
 	private String host;
+
 	private int port;
 
 	private EventListenerList listenerList;
@@ -44,6 +50,7 @@ public class NaimonConnector implements Runnable {
 	private boolean connected = false;
 
 	private long lastReconnect;
+
 	private int reconnectCount;
 
 	private Hashtable<String, String> requestParams;
@@ -241,4 +248,93 @@ public class NaimonConnector implements Runnable {
 		log.info("scheme:" + scheme);
 		return true;
 	}
+
+	public Document evalSchemeXML(String schemeExpression) {
+		try {
+			URL url = new URL("http", host, port, "/xscheme");
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("POST");
+
+			String param = "eval="
+					+ URLEncoder.encode(schemeExpression, "UTF-8");
+
+			conn.setRequestProperty("Content-Type",
+					"application/x-www-form-urlencoded");
+
+			conn.setRequestProperty("Content-Length", ""
+					+ Integer.toString(param.getBytes().length));
+			conn.setUseCaches(false);
+			conn.setDoInput(true);
+			conn.setDoOutput(true);
+
+			// Send request
+			OutputStreamWriter wr = new OutputStreamWriter(conn
+					.getOutputStream());
+			wr.write(param);
+			wr.flush();
+			wr.close();
+
+			InputStream is = conn.getInputStream();
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = null;
+			Document document = null;
+			builder = dbf.newDocumentBuilder();
+			document = builder.parse(is);
+			return document;
+		} catch (IOException e) {
+			log.warning(e.getLocalizedMessage());
+			e.printStackTrace();
+		} catch (SAXException e) {
+			log.warning(e.getLocalizedMessage());
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			log.warning(e.getLocalizedMessage());
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public Document sendXML(String path, String data) {
+		try {
+			URL url = new URL("http", host, port, path);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("POST");
+
+			conn.setRequestProperty("Content-Type", "text/xml");
+
+			conn.setRequestProperty("Content-Length", ""
+					+ Integer.toString(data.getBytes().length));
+			conn.setUseCaches(false);
+			conn.setDoInput(true);
+			conn.setDoOutput(true);
+
+			// Send request
+			OutputStreamWriter wr = new OutputStreamWriter(conn
+					.getOutputStream());
+			wr.write(data);
+			wr.flush();
+			wr.close();
+
+			log.info(data);
+
+			InputStream is = conn.getInputStream();
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = null;
+			Document document = null;
+			builder = dbf.newDocumentBuilder();
+			document = builder.parse(is);
+			return document;
+		} catch (IOException e) {
+			log.warning(e.getLocalizedMessage());
+			e.printStackTrace();
+		} catch (SAXException e) {
+			log.warning(e.getLocalizedMessage());
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			log.warning(e.getLocalizedMessage());
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 }
